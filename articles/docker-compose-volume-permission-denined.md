@@ -11,7 +11,7 @@ published: true
 本記事は、社内テックレビューにて表題の件についてご相談していただいたアドバイスと自身で調べたことの備忘録です。
 いくつも対処案を教えていただき、ありがとうございました。
 
-@[tweet](https://twitter.com/gkzvoice/status/1329804567458971648?s=20)
+@[tweet](https://twitter.com/gkzvoice/status/1329804567458971648)
 
 
 ### 本記事で扱うサンプルコードのリポジトリ
