@@ -19,7 +19,7 @@ published: true
 
 ## 本記事における問題点の共有
 まず、本記事で取り扱いたいdocker-composeで引いたエラーについて書いていきます。
-- App/DB/Nginx(Django/Postgres/Nginx)で構成されるコンテナを再ビルドすると、`Permission denied` とエラーを引いたこと
+- App/DB/Nginx(Django/Postgres/Nginx)で構成されるコンテナを再ビルドすると、**`Permission denied`** とエラーを引いたこと
 
 ```
 $ docker-compsoe down -v
@@ -27,10 +27,9 @@ $ docker-compose up -d --buuild
 ```
 
 ### エラーの原因
-- docker-composeのボリュームで指定しているDBコンテナのオーナー権限がコンテナ側とホスト側とで異なっていた
+- **`docker-composeのVolumesで指定しているDBコンテナのオーナー権限がコンテナ側とホスト側とで異なっていた`**
 - コンテナ側のオーナーはrootユーザー、ホスト側のオーナーは非rootユーザー
-
-`docker-compose.yml`より該当箇所抜粋
+- `docker-compose.yml`より該当箇所抜粋
 ```
 db:
 (略)
@@ -39,24 +38,21 @@ db:
 ```
 
 続いて、解決策をいくつかご紹介します。
-一概に`これがベストプラクティス！`と言えず、ケースバイケースによるかなと思ったので、解決策ごとにメリットとデメリット、採用基準を簡単に添えています。
+一概に`これがベストプラクティス！`と言えず、ケースバイケースによるかなと思ったので、対処案ごとにメリットとデメリット、採用基準を簡単に添えています。
 
-## 解決策1 
-`docker-compose.yml`でvolumeの指定をやめる
-
+## 対処案1 
+- **`docker-compose.ymlでvolumeの指定をやめる`**
 - メリット
-  - 元も子もないですが、後述するどの解決策よりシンプル
-  - DBコンテナのデータはビルド時に`/docker-entrypoint-initdb.d/*`に記載されたデータの投入スクリプトやSQLを除いて投入されることがなければ、
+  - 元も子もないですが、後述するどの対処案よりシンプル
 - デメリット
   - DBコンテナを落とすとDBコンテナのファイルは消失する
   - ホスト側、外部サービスでDBコンテナのファイルを永続的に使う場合、避けたほうがよい
 - 採用基準
-  - DBコンテナのデータはビルド時に`/docker-entrypoint-initdb.d/*`に記載されたデータの投入スクリプトやSQLを除いて投入されなければ。
+  - DBコンテナのデータはビルド時に **`/docker-entrypoint-initdb.d/*(1)に記載されたデータの投入スクリプトやSQLを除いて投入されないこと`**
 
 
-## 解決策2 
-
-`docker-compose.yml`でvolumesのホスト側のディレクトリを削除してから再ビルド
+## 対処案2 
+- **`docker-compose.ymlでvolumesのホスト側のディレクトリを削除してから再ビルド`**
 
 ```
 $ sudo rm -rf ./path/to/${DB_VOLUME}
@@ -64,10 +60,89 @@ $ sudo rm -rf ./path/to/${DB_VOLUME}
 ※ここで挙げているメリットは正確にはVolumesでDBコンテナのデータを指定していることによるものですね。
 
 - メリット
-  - 解決策1の逆でDBコンテナを落としてもDBコンテナのファイルがホスト側に残すことができる
+  - 対処案1の逆でDBコンテナを落としてもDBコンテナのファイルがホスト側に残すことができる
   - DBコンテナのデータをホスト、外部サービスで使うことが出来る
 - デメリット
   - `rm -rf ./path/to/${DB_VOLUME}`するのがめんどう
 - 採用基準
   - DBコンテナを落としてからDBコンテナのファイルを使うか
   - DBコンテナのデータをホスト、外部サービスで使うか
+
+
+## 対処案3
+- **`SELinux系であれば、zフラグを付ける`**
+
+※Dockerの公式ドキュメントで紹介されていた方法ですが、未検証です。
+
+> Configure the selinux label
+If you use selinux you can add the z or Z options to modify the selinux label of the host file or directory being mounted into the container. 
+
+
+以上、3点が表題の**`docker-compose.ymlでVolumesを使ったらPermission deniedとなったときの対処`**です。
+最後に上手くいかなかった方法をご紹介します。
+
+## うまくいかなかった方法 
+- docker-composeでコンテナをビルドする際、`Permission denined`となったDBコンテナの実行ユーザーをPostgresに切り替える
+- ここではDBコンテナの`db/Dockerfile`の末尾に以下のように書いて実行ユーザーをPostgresに切り替えている
+```
+FROM postgres:11.9-alpine
+
+RUN apk update \
+    && apk upgrade \
+    && apk add --no-cache --virtual vim
+
+RUN chown -R postgres:postgres /var/lib/postgresql/data \
+  && chown -R postgres:postgres /docker-entrypoint-initdb.d
+USER postgres
+```
+- DBコンテナを再ビルドすると、以下のようにVolumesで指定している、`/var/lib/postgresql/data`周りの権限エラーを引いた
+```
+$ docker-compose logs db
+Attaching to db
+db     | chmod: /var/lib/postgresql/data: Operation not permitted
+db     | chmod: /var/lib/postgresql/data: Operation not permitted
+db     | chmod: /var/lib/postgresql/data: Operation not permitted          
+db     | chmod: /var/lib/postgresql/data: Operation not permitted          
+db     | chmod: /var/lib/postgresql/data: Operation not permitted
+db     | chmod: /var/lib/postgresql/data: Operation not permitted
+db     | chmod: /var/lib/postgresql/data: Operation not permitted
+db     | chmod: /var/lib/postgresql/data: Operation not permitted
+```
+
+- DBコンテナと同じくコンテナとホストとでVolumesを指定しているが、Appコンテナはapp/Dockerfileにて、
+Djangoアプリのルートディレクトリの作成をおこなっている。
+- 一方、DBコンテナではイメージで用意されているディレクトリをVolumesで指定している点がAppコンテナと異なる。
+
+```
+# (略)
+
+# add user
+ARG APPUSER_UID=1000
+ARG APPUSER=app
+ARG APPUSER_PASSWORD=app
+　RUN useradd -m --uid ${APPUSER_UID} --groups sudo ${APPUSER} \
+  && echo ${APPUSER}:${APPUSER_PASSWORD} | chpasswd
+
+# (略)
+
+# set work directory
+ARG HOME_DIR=/home/app
+RUN mkdir -p ${HOME_DIR} \
+  && chown -R ${APPUSER}:${APPUSER} ${HOME_DIR}
+WORKDIR ${HOME_DIR}
+
+# (略)
+
+# su - ${APPUSER}
+USER ${APPUSER}
+
+# (略)
+
+```
+
+
+## 注釈
+- *1 [/docker-entrypoint-initdb.d/init.sh](https://github.com/gkzz/link-portal/blob/main/db/docker-entrypoint-initdb.d/init.sh)では、以下のようにPostgresに初期データを投入している
+
+```
+```
