@@ -23,7 +23,7 @@ published: true
 
 ```
 $ docker-compsoe down -v
-$ docker-compose up -d --buuild
+$ docker-compose up -d --build
 ```
 
 ### エラーの原因
@@ -77,6 +77,8 @@ $ sudo rm -rf ./path/to/${DB_VOLUME}
 
 > Configure the selinux label
 If you use selinux you can add the z or Z options to modify the selinux label of the host file or directory being mounted into the container. 
+
+出所：[Use bind mounts | Docker Documentation](https://docs.docker.com/storage/bind-mounts/#configure-the-selinux-label)
 
 
 以上、3点が表題の **`docker-compose.ymlでVolumesを使ったらPermission deniedとなったときの対処`** です。
