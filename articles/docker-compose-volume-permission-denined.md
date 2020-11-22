@@ -29,8 +29,9 @@ $ docker-compose up -d --buuild
 ### エラーの原因
 - **`docker-composeのVolumesで指定しているDBコンテナのオーナー権限がコンテナ側とホスト側とで異なっていた`**
 - コンテナ側のオーナーはrootユーザー、ホスト側のオーナーは非rootユーザー
-- `docker-compose.yml`より該当箇所抜粋
 ```
+# docker-compose.yml
+
 db:
 (略)
     volumes:
@@ -48,7 +49,7 @@ db:
   - DBコンテナを落とすとDBコンテナのファイルは消失する
   - ホスト側、外部サービスでDBコンテナのファイルを永続的に使う場合、避けたほうがよい
 - 採用基準
-  - DBコンテナのデータはビルド時に **`/docker-entrypoint-initdb.d/*(1)に記載されたデータの投入スクリプトやSQLを除いて投入されないこと`**
+  - DBコンテナのデータはビルド時に **`/docker-entrypoint-initdb.d/*に記載されたデータの投入スクリプトやSQLを除いて投入されないこと`**(*1)
 
 
 ## 対処案2 
@@ -78,7 +79,7 @@ $ sudo rm -rf ./path/to/${DB_VOLUME}
 If you use selinux you can add the z or Z options to modify the selinux label of the host file or directory being mounted into the container. 
 
 
-以上、3点が表題の**`docker-compose.ymlでVolumesを使ったらPermission deniedとなったときの対処`**です。
+以上、3点が表題の **`docker-compose.ymlでVolumesを使ったらPermission deniedとなったときの対処`** です。
 最後に上手くいかなかった方法をご紹介します。
 
 ## うまくいかなかった方法 
@@ -109,8 +110,7 @@ db     | chmod: /var/lib/postgresql/data: Operation not permitted
 db     | chmod: /var/lib/postgresql/data: Operation not permitted
 ```
 
-- DBコンテナと同じくコンテナとホストとでVolumesを指定しているが、Appコンテナはapp/Dockerfileにて、
-Djangoアプリのルートディレクトリの作成をおこなっている。
+- DBコンテナと同じくコンテナとホストとでVolumesを指定しているが、Appコンテナはapp/Dockerfileにて、Djangoアプリのルートディレクトリの作成をおこなっている。
 - 一方、DBコンテナではイメージで用意されているディレクトリをVolumesで指定している点がAppコンテナと異なる。
 
 ```
@@ -137,7 +137,6 @@ WORKDIR ${HOME_DIR}
 USER ${APPUSER}
 
 # (略)
-
 ```
 
 
@@ -145,4 +144,37 @@ USER ${APPUSER}
 - *1 [/docker-entrypoint-initdb.d/init.sh](https://github.com/gkzz/link-portal/blob/main/db/docker-entrypoint-initdb.d/init.sh)では、以下のようにPostgresに初期データを投入している
 
 ```
+#!/bin/bash
+
+set -e
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" << EOSQL
+     CREATE USER $SQL_USER WITH ENCRYPTED PASSWORD '$SQL_PASSWORD';
+     CREATE DATABASE $SQL_DB OWNER $SQL_USER;
+     GRANT ALL PRIVILEGES ON DATABASE $SQL_DB TO $SQL_USER;
+     ALTER USER $SQL_USER CREATEDB;
+EOSQL
+
+psql -v ON_ERROR_STOP=1 --username "$SQL_USER" --dbname "$SQL_DB" << EOSQL
+     CREATE TABLE links (
+         id     serial8  primary key,
+         title   text     not null unique,
+         url   text     not null unique,
+         tag   text not null,
+         created_at timestamp,
+         updated_at timestamp,
+         is_completed boolean default 'f',
+         is_active boolean default 't'
+    );
+    INSERT INTO links (
+        title, url, tag
+    )
+    VALUES (
+        'Getting started with Django', 'https://www.djangoproject.com/start/', 'tutorial'
+    );
+EOSQL
 ```
+
+
+## P.S. Twitterもやってるのでフォローしていただけると泣いて喜びます:)
+[@gkzvoice](https://twitter.com/gkzvoice)
