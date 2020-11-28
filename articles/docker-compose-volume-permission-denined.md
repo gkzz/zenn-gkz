@@ -6,7 +6,7 @@ topics: ["docker", "dockercompose"]
 published: true
 ---
 
-## はじめに
+## 0.はじめに
 こんにちは。都内でエンジニアをしている、[@gkzvoice](https://twitter.com/gkzvoice)です。
 本記事は、社内テックレビューにて表題の件についてご相談していただいたアドバイスと自身で調べたことの備忘録です。
 いくつも対処案を教えていただき、ありがとうございました。
@@ -14,10 +14,10 @@ published: true
 @[tweet](https://twitter.com/gkzvoice/status/1329804567458971648)
 
 
-### 本記事で扱うサンプルコードのリポジトリ
+## 1.本記事で扱うサンプルコードのリポジトリ
 - [https://github.com/gkzz/link-portal](https://github.com/gkzz/link-portal)
 
-## 本記事における問題点の共有
+## 2.本記事における問題点の共有
 まず、本記事で取り扱いたいdocker-composeで引いたエラーについて書いていきます。
 - App/DB/Nginx(Django/Postgres/Nginx)で構成されるコンテナを再ビルドすると、**`Permission denied`** とエラーを引いたこと
 
@@ -26,7 +26,7 @@ $ docker-compsoe down -v
 $ docker-compose up -d --build
 ```
 
-### エラーの原因
+## 3.エラーの原因
 - **`docker-composeのVolumesで指定しているDBコンテナのオーナー権限がコンテナ側とホスト側とで異なっていた`**
 - コンテナ側のオーナーはrootユーザー、ホスト側のオーナーは非rootユーザー
 ```
@@ -41,7 +41,7 @@ db:
 続いて、解決策をいくつかご紹介します。
 一概に`これがベストプラクティス！`と言えず、ケースバイケースによるかなと思ったので、対処案ごとにメリットとデメリット、採用基準を簡単に添えています。
 
-## 対処案1 
+## 4.対処案1 
 - **`docker-compose.ymlでvolumeの指定をやめる`**
 - メリット
   - 元も子もないですが、後述するどの対処案よりシンプル
@@ -52,7 +52,7 @@ db:
   - DBコンテナのデータはビルド時に **`/docker-entrypoint-initdb.d/*に記載されたデータの投入スクリプトやSQLを除いて投入されないこと`**(*1)
 
 
-## 対処案2 
+## 5.対処案2 
 - **`docker-compose.ymlでvolumesのホスト側のディレクトリを削除してから再ビルド`**
 
 ```
@@ -70,7 +70,7 @@ $ sudo rm -rf ./path/to/${DB_VOLUME}
   - DBコンテナのデータをホスト、外部サービスで使うか
 
 
-## 対処案3
+## 6.対処案3
 - **`SELinux系であれば、zフラグを付ける`**
 
 ※Dockerの公式ドキュメントで紹介されていた方法ですが、未検証です。
@@ -84,7 +84,7 @@ If you use selinux you can add the z or Z options to modify the selinux label of
 以上、3点が表題の **`docker-compose.ymlでVolumesを使ったらPermission deniedとなったときの対処`** です。
 最後に上手くいかなかった方法をご紹介します。
 
-## うまくいかなかった方法 
+## 7.うまくいかなかった方法 
 - docker-composeでコンテナをビルドする際、`Permission denined`となったDBコンテナの実行ユーザーをPostgresに切り替える
 - ここではDBコンテナの`db/Dockerfile`の末尾に以下のように書いて実行ユーザーをPostgresに切り替えている
 ```
@@ -142,7 +142,7 @@ USER ${APPUSER}
 ```
 
 
-## 注釈
+## 8.注釈
 - *1 [/docker-entrypoint-initdb.d/init.sh](https://github.com/gkzz/link-portal/blob/main/db/docker-entrypoint-initdb.d/init.sh)では、以下のようにPostgresに初期データを投入している
 
 ```
