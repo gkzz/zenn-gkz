@@ -100,11 +100,10 @@ $
 ```
 
 ```
-jump@jump:~/gke-quickstart$ kubectl create deployment hello-server --image=gcr.io/google-samples/hello-app:1.0
+$ kubectl create deployment hello-server --image=gcr.io/google-samples/hello-app:1.0
 deployment.apps/hello-server created
-jump@jump:~/gke-quickstart$ kubectl expose deployment hello-server --type LoadBalancer   --port 80 --target-port 8080
+$ kubectl expose deployment hello-server --type LoadBalancer   --port 80 --target-port 8080
 service/hello-server exposed
-jump@jump:~/gke-quickstart$
 ```
 
 
@@ -183,10 +182,63 @@ REVISION: 1
 TEST SUITE: None
 NOTES:
 Your GitLab Runner should now be registered against the GitLab instance reachable at: "https://gitlab.com/"
-jump@jump:~/gke-quickstart/gitlab$ helm list -n gitlab
+$ helm list -n gitlab
 NAME         	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART               	APP VERSION
 gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deployed	gitlab-runner-0.23.0	13.6.0     
-jump@jump:~/gke-quickstart/gitlab$ 
+```
+
+
+```
+# .gitlab-ci.yml
+
+include: 
+  - .gitlab-ci.d/.dev-test.yml
+  - project: gkzz/gitlab-ci-common
+    ref: master
+    file: .failure.yml
+
+before_script:
+  - docker info
+
+stages:
+  - build
+  - test
+  - deploy
+  - failure
+
+build_always:
+  stage: build
+  script:
+    - echo "Hello, $GITLAB_USER_LOGIN!"
+  tags:
+    - always
+
+test_always:
+  stage: test
+  extends: .dev-test
+  tags:
+    - always
+
+deploy_always:
+  stage: deploy
+  script:
+    - echo "This job deploys something from the $CI_COMMIT_BRANCH branch."
+  tags:
+    - always
+
+on_failure:
+  stage: failure
+  extends: .failure
+  tags:
+    - always
+  when: on_failure
+
+```
+
+```
+.failure:
+  script: 
+    - echo "Something wrong"
 ```
 
 
