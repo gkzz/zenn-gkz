@@ -34,7 +34,7 @@ Gitlabが公開している、[GitLab CI/CD on Google Kubernetes Engine in 15 mi
 ## 3.環境/バージョン情報
 
 ### 3-1.構成図
-- 作成中
+
 
 ### 3-2. GCPで有効化しなければいけないAPI
 
@@ -111,7 +111,11 @@ $ export PROJECT_ID = your-gcp-project-id
 
 ## 4. GKEクラスターの作成
 
-参考：[Quickstart | Kubernetes Engine Documentation | Google Cloud](https://cloud.google.com/kubernetes-engine/docs/quickstart)
+参考
+```
+- Quickstart | Kubernetes Engine Documentation | Google Cloud
+https://cloud.google.com/kubernetes-engine/docs/quickstart
+```
 - クラスターの名前をhello-cluterとして作成
 ```
 $ gcloud container clusters create hello-cluter --num-nodes=1
@@ -133,10 +137,14 @@ $ kubectl config current-context
 gke_${PROJECT_ID}_asia-northeast1-a_hello-cluster
 ```
 
-## 5.でGcloud SDKで作成したGKEクラスターとGitlabとを連携
+## 5.Gcloud SDKで作成したGKEクラスターとGitlabとを連携
 参考
-- [GitLab CI/CD on Google Kubernetes Engine in 15 minutes or less](https://about.gitlab.com/blog/2020/03/27/gitlab-ci-on-google-kubernetes-engine/)
-- [Adding and removing Kubernetes clusters | GitLab](https://docs.gitlab.com/ee/user/project/clusters/add_remove_clusters.html)
+```
+- GitLab CI/CD on Google Kubernetes Engine in 15 minutes or less
+https://about.gitlab.com/blog/2020/03/27/gitlab-ci-on-google-kubernetes-engine/
+- Adding and removing Kubernetes clusters | GitLab
+https://docs.gitlab.com/ee/user/project/clusters/add_remove_clusters.html
+```
 
 ### 5-1.GitlabのGUIでもろもろ設定するページに遷移する
 
@@ -285,14 +293,17 @@ gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deploye
 本記事を執筆するにあたり、GitLabの日本コミュニティのみなさまのお力添えがなければ、公開まで到達できなかったと思います。ありがとうございました。本記事がGitlabのよりよい発展の一助となればうれしいです。Gitlab万歳！
 
 ## 9.参考
-
-- [GitLab CI/CD on Google Kubernetes Engine in 15 minutes or less](https://about.gitlab.com/blog/2020/03/27/gitlab-ci-on-google-kubernetes-engine/)
-- [Adding and removing Kubernetes clusters | GitLab](https://docs.gitlab.com/ee/user/project/clusters/add_remove_clusters.html)
-- [Quickstart | Kubernetes Engine Documentation | Google Cloud](https://cloud.google.com/kubernetes-engine/docs/quickstart)
-- [GitLab Runnerをkubernetes上でラフに動かしてみよう #gitlab #kubernetes #gitlab-jp #developer #devops](https://www.creationline.com/lab/gitlab/33461)
-- [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
-- [GitLabの継続的インテグレーション(CI)と継続的デリバリー(CD)](https://www.gitlab.jp/stages-devops-lifecycle/continuous-integration)
-- [Deploying a containerized web application](https://cloud.google.com/kubernetes-engigcloud%20container%20clusters%20get-credentialsne/docs/tutorials/hello-app)
+- 本記事の執筆にあたり参考にした記事
+  - [GitLab CI/CD on Google Kubernetes Engine in 15 minutes or less](https://about.gitlab.com/blog/2020/03/27/gitlab-ci-on-google-kubernetes-engine/)
+  - [Adding and removing Kubernetes clusters | GitLab](https://docs.gitlab.com/ee/user/project/clusters/add_remove_clusters.html)
+  - [Quickstart | Kubernetes Engine Documentation | Google Cloud](https://cloud.google.com/kubernetes-engine/docs/quickstart)
+  - [GitLab Runnerをkubernetes上でラフに動かしてみよう #gitlab #kubernetes #gitlab-jp #developer #devops](https://www.creationline.com/lab/gitlab/33461)
+  - [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+  - [GitLabの継続的インテグレーション(CI)と継続的デリバリー(CD)](https://www.gitlab.jp/stages-devops-lifecycle/continuous-integration)
+  - [Deploying a containerized web application](https://cloud.google.com/kubernetes-engigcloud%20container%20clusters%20get-credentialsne/docs/tutorials/hello-app)
+- Gitlabの日本コミュニティ
+  - [GitLab connpass](https://gitlab-jp.connpass.com/)
+  - [GitLab-JP Slack](https://gitlab-jp.herokuapp.com)
 
 
 ## P.S. Twitterもやってるのでフォローしていただけると泣いて喜びます:)
