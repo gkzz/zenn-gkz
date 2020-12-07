@@ -144,15 +144,15 @@ gke_${PROJECT_ID}_asia-northeast1-a_hello-cluster
   - ここでは **`gke-quickstart`** を選択
   - このプロジェクトとは **`.gitlab-ci.yml`** がpushされるリポジトリ
 
-![](https://storage.googleapis.com/zenn-user-upload/os7ueulapbtsey1tu5o11g1nhl4b)
+![](https://storage.googleapis.com/zenn-user-upload/os7ueulapbtsey1tu5o11g1nhl4b =400x)
 
 - **`Operations`** をクリック
 
-![](https://storage.googleapis.com/zenn-user-upload/5eccpal33jm3v41wsxj6j6lsgior)
+![](https://storage.googleapis.com/zenn-user-upload/5eccpal33jm3v41wsxj6j6lsgior =400x)
 - **`Kubernetes`** をクリック
 - **`Connect cluster with certificate`** をクリック
 
-![](https://storage.googleapis.com/zenn-user-upload/85z0jsgycjv72klux8495scuez7e)
+![](https://storage.googleapis.com/zenn-user-upload/85z0jsgycjv72klux8495scuez7e =400x)
 
 ### 5-2.GitlabのGUIでもろもろ設定する
 - 下記の画像のような画面にて、以下の項目を入力
@@ -161,7 +161,7 @@ gke_${PROJECT_ID}_asia-northeast1-a_hello-cluster
   - CA Certificate
   - Enter new Service Token
 
-![](https://storage.googleapis.com/zenn-user-upload/c9nbaapjcxxtnz69kime5ubdxk3i)
+![](https://storage.googleapis.com/zenn-user-upload/c9nbaapjcxxtnz69kime5ubdxk3i =400x)
 
 各項目の値の取得方法をこれから記載していきます。
 
@@ -239,7 +239,7 @@ token: <サービストークン>
 - 以下の項目は空白のまま
   - **`Project namespace prefix (optional, unique)`**
 
-![](https://storage.googleapis.com/zenn-user-upload/ujmia7r0glr75o6z5s1z82s9y09i =250x)
+![](https://storage.googleapis.com/zenn-user-upload/ujmia7r0glr75o6z5s1z82s9y09i =400x)
 
 ### 5-2.HelmでGitlabのchartをインストール
 
@@ -251,9 +251,9 @@ $ helm repo add gitlab https://charts.gitlab.io
 "gitlab" has been added to your repositories
 ```
 
-![](https://storage.googleapis.com/zenn-user-upload/h2mezbme12tigjt0314d2fspkgjw =250x)
+![](https://storage.googleapis.com/zenn-user-upload/h2mezbme12tigjt0314d2fspkgjw =400x)
 
-![](https://storage.googleapis.com/zenn-user-upload/cewj5o4000nelrgfwvf1waqv85du =250x)
+![](https://storage.googleapis.com/zenn-user-upload/cewj5o4000nelrgfwvf1waqv85du =400x)
 
 ```
 $ helm install -n gitlab gitlab-runner -f .gitlab-ci.d/values.yaml gitlab/gitlab-runner
@@ -270,9 +270,9 @@ NAME         	NAMESPACE	REVISION	UPDATED                                	STATUS 
 gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deployed	gitlab-runner-0.23.0	13.6.0     
 ```
 
+## 6..gitlab-ci.ymlの工夫
 
-
-## x.今後の課題
+## 7.今後の課題
 最後に本記事では解決できなかった課題を2点ほど挙げさせていただきます。
 ```
 - GKEと接続したGitlab Runnerでdocker及びkubectlコマンドをどうやって使うか
@@ -281,7 +281,10 @@ gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deploye
   - あるいは環境変数のkeyを参照して値をRunnerが読み込めるようにする
 ```
 
-## z.参考
+## 8.GitLabの日本コミュニティのみなさまへ
+本記事を執筆するにあたり、GitLabの日本コミュニティのみなさまのお力添えがなければ、公開まで到達できなかったと思います。ありがとうございました。本記事がGitlabのよりよい発展の一助となればうれしいです。Gitlab万歳！
+
+## 9.参考
 
 - [GitLab CI/CD on Google Kubernetes Engine in 15 minutes or less](https://about.gitlab.com/blog/2020/03/27/gitlab-ci-on-google-kubernetes-engine/)
 - [Adding and removing Kubernetes clusters | GitLab](https://docs.gitlab.com/ee/user/project/clusters/add_remove_clusters.html)
@@ -291,6 +294,9 @@ gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deploye
 - [GitLabの継続的インテグレーション(CI)と継続的デリバリー(CD)](https://www.gitlab.jp/stages-devops-lifecycle/continuous-integration)
 - [Deploying a containerized web application](https://cloud.google.com/kubernetes-engigcloud%20container%20clusters%20get-credentialsne/docs/tutorials/hello-app)
 
+
+## P.S. Twitterもやってるのでフォローしていただけると泣いて喜びます:)
+[@gkzvoice](https://twitter.com/gkzvoice)
 
 [^1]: GCPプロジェクトのIDの確認方法について。GCPコンソール画面からダッシュボードを開くと右記のようなURLとなっている。このURLの${PROJECT_ID}がGCPプロジェクトのID。（https://console.cloud.google.com/home/dashboard?project=${PROJECT_ID}）
 [^2]: 注釈を付けたコマンドを実行して表示されるものはクラスターの名前の頭に${PROJECT_ID}などがついていて、なんなのかよくわかっていない。。
