@@ -84,11 +84,12 @@ $ gcloud config set compute/zone asia-northeast1-a
 Updated property [compute/zone].
 ```
 
-## 4. クラスターの作成他
+## 4. クラスターの作成
 
 - クラスターの作成
+  - 名前はhello-cluterとした
 ```
-$ gcloud container clusters create quickstart --num-nodes=1
+$ gcloud container clusters create hello-cluter --num-nodes=1
 ```
 
 ```
@@ -96,14 +97,64 @@ $ gcloud container clusters get-credentials \
 > $(gcloud container clusters list | grep -v "NAME" | awk '{print $1}')
 Fetching cluster endpoint and auth data.
 kubeconfig entry generated for quickstart.
-$
+```
+
+## 5. DockerコンテナイメージのビルドからGCRにpushまで
+
+- GCPプロジェクトのIDを環境変数として使えるようにする
+```
+$ export PROJECT_ID = your-gcp-project-id
+```
+
+- サンプルリポジトリのclone
+  - 
 ```
 
 ```
-$ kubectl create deployment hello-server --image=gcr.io/google-samples/hello-app:1.0
-deployment.apps/hello-server created
-$ kubectl expose deployment hello-server --type LoadBalancer   --port 80 --target-port 8080
-service/hello-server exposed
+
+- Dockerfileがあるディレクトリまで移動
+```
+$ cd gke-quickstart/app
+```
+
+- Dockerコンテナイメージのビルド
+  - `hello-python`は任意のDockerコンテナの名前。後々使うmanifests/deployment.ymlでも使用
+```
+hoge@hoge:~/gke-quickstart/app$ docker build -f Dockerfile -t gcr.io/${PROJECT_ID}/hello-python:v1 .
+```
+
+- runする際に使うイメージIDを取得
+```
+hoge@hoge:~/gke-quickstart/app$ docker image ls gcr.io/${PROJECT_ID}/hello-python
+REPOSITORY                                TAG                 IMAGE ID            CREATED             SIZE
+gcr.io/bamboo-storm-296515/hello-python   v1 
+```
+
+```
+docker run -d -p 5001:5000 --name hello-python 420c84c84845
+30c7fa4a48b4a06206023012de36b304a165750d785f942448d3fcc778f8c577
+jump@jump:~/gke-quickstart/app$
+```
+
+
+```
+docker push gcr.io/bamboo-storm-296515/hello-python:v1
+The push refers to repository [gcr.io/bamboo-storm-296515/hello-python]
+7f591ddc4dbf: Layer already exists 
+f032673305e2: Layer already exists 
+7157cf060c69: Layer already exists 
+b60b9aee4946: Layer already exists 
+eaed50855d41: Layer already exists 
+026c477245c5: Layer already exists 
+ee78bcfefc78: Layer already exists 
+c4a6d8ca5d2c: Layer already exists 
+059ed1793a98: Layer already exists 
+712264374d24: Layer already exists 
+475b4eb79695: Layer already exists 
+f3be340a54b9: Layer already exists 
+114ca5b7280f: Layer already exists 
+v1: digest: sha256:01fcc05220a9edad25b091149aa9480142e16985cacc5bc33255b7c68afb7450 size: 3050
+jump@jump:~/gke-quickstart/app$
 ```
 
 
@@ -242,9 +293,15 @@ on_failure:
 ```
 
 
+sedでmanifestファイル書き換え
+
+
 参考
 
 - [GitLabの継続的インテグレーション(CI)と継続的デリバリー(CD)](https://www.gitlab.jp/stages-devops-lifecycle/continuous-integration)
 
 - [kelseyhightower/kubernetes-the-hard-way: Bootstrap Kubernetes the hard way on Google Cloud Platform. No scripts.](https://github.com/kelseyhightower/kubernetes-the-hard-way)
 - [GitLab CI/CD on Google Kubernetes Engine in 15 minutes or less](https://about.gitlab.com/blog/2020/03/27/gitlab-ci-on-google-kubernetes-engine/)
+- [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+
+- [Deploying a containerized web application](https://cloud.google.com/kubernetes-engigcloud%20container%20clusters%20get-credentialsne/docs/tutorials/hello-app)
