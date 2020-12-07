@@ -70,18 +70,22 @@ $ gcloud config list
 [compute]
 region = asia-northeast1
 zone = asia-northeast1-a
+[container]
+cluster = hello-cluster
 [core]
 account = yourmail@gmail.com
 disable_usage_reporting = False
 project = your-project
 
 
-## regionとzoneは設定されていなかった
+## regionとzoneとclusterは設定されていなかった
 ## そこで以下のように設定した
 $ gcloud config set compute/region asia-northeast1
 Updated property [compute/region].
 $ gcloud config set compute/zone asia-northeast1-a
 Updated property [compute/zone].
+jump@jump:~/gke-quickstart/app$ gcloud config set container/cluster hello-cluster
+Updated property [container/cluster].
 ```
 
 ## 4. クラスターの作成
@@ -176,7 +180,12 @@ gke_bamboo-storm-296515_asia-northeast1-a_gke-quickstart
 - **`Connect cluster with certificate`** をクリック
 ![](https://storage.googleapis.com/zenn-user-upload/x0qx5oznrf2nf62ah4i20snxn3xh)
 
+クラスター名は先ほどつけたもの
 
+```
+jump@jump:~/gke-quickstart/app$ kubectl cluster-info | grep 'Kubernetes master' | awk '/http/ {print $NF}'
+https://xx.xx.xx.xx
+```
 
 ```
 $ kubectl get secret $(kubectl get secret | grep -v "NAME" | awk '{print $1}') -o jsonpath="{['data']['ca\.crt']}" | base64 --decode
@@ -236,6 +245,31 @@ Your GitLab Runner should now be registered against the GitLab instance reachabl
 $ helm list -n gitlab
 NAME         	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART               	APP VERSION
 gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deployed	gitlab-runner-0.23.0	13.6.0     
+```
+
+```
+jump@jump:~/gke-quickstart$ k apply -f .gitlab-ci.d/gitlab-admin-service-acount.yml 
+serviceaccount/gitlab created
+clusterrolebinding.rbac.authorization.k8s.io/gitlab-admin created
+jump@jump:~/gke-quickstart$ k get sa
+NAME      SECRETS   AGE
+default   1         22h
+jump@jump:~/gke-quickstart$ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep gitlab | awk '{print $1}')
+Name:         gitlab-token-jfqj6
+Namespace:    kube-system
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name: gitlab
+              kubernetes.io/service-account.uid: 830140e4-e35f-4b09-b7bd-61f238a2008d
+
+Type:  kubernetes.io/service-account-token
+
+Data
+====
+ca.crt:     1159 bytes
+namespace:  11 bytes
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6ImpoRTZBMEc1LWM2N1pUbVc1TnBRRjFBbV9MOWxWbHhlRWR1RmNOMEdIQWcifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJnaXRsYWItdG9rZW4tamZxajYiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZ2l0bGFiIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiODMwMTQwZTQtZTM1Zi00YjA5LWI3YmQtNjFmMjM4YTIwMDhkIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmdpdGxhYiJ9.BCX0ok0ukXvD-bzHf8C9hGTXJlLqZCsQNV9BQ0bkc0uXgTXdZ5nYdXxRd_35VBTFTow0iEGHB4F5jbQfVSwxj6og7cd2Gdw1q39vrrDouu9KKtxgHYy4bkydnz7NvqgJ0hioVj1w9bUeql2aCyHvPIP3I03umesfb0V22sin8jUMJuHrlGxpFV81f8AhuDkwh66uIbkXHphojIzCg4NFffiyuwmN6-CtACfhx28w9yFdQqEjK70NcVRJmrYXV1uFE46dhdx7sjJjkLTo4po0GdmazCPRQLorVn9GWhNpigiyb9aVQV71HMnqeywTGnaFjtOrM0b060EioqTtj4Lzgg
+jump@jump:~/gke-quickstart$ 
+
 ```
 
 
