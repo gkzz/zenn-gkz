@@ -54,7 +54,7 @@ Gitlabが公開している、[GitLab CI/CD on Google Kubernetes Engine in 15 mi
 $ grep "^VERSION=" /etc/os-release 
 VERSION="20.04.1 LTS (Focal Fossa)"
 ```
-- Google Cloud SDK
+- Google Cloud SDK（以下、GCloud SDKと記載）
 ```
 $ gcloud version
 Google Cloud SDK 318.0.0
@@ -75,7 +75,7 @@ Client Version: version.Info{Major:"1", Minor:"19", GitVersion:"v1.19.4", GitCom
 $ helm version
 version.BuildInfo{Version:"v3.4.1", GitCommit:"c4e74854886b2efe3321e185578e6db9be0a6e29", GitTreeState:"clean", GoVersion:"go1.14.11"}
 ```
-- Gcloud config情報
+- GCloud SDKのconfig情報
 ```
 $ gcloud config list
 [compute]
@@ -89,7 +89,7 @@ disable_usage_reporting = False
 project = your-project
 ```
 
-### 3-4.gcloud configで追加設定
+### 3-4.GCloud SDKのconfigの追加設定
 - regionとzoneとclusterは設定されていなかった
 - そこで以下のように設定した
 ```
@@ -107,7 +107,7 @@ $ export PROJECT_ID = your-gcp-project-id
 
 これでGitlab Runnerを動かすGKEクラスターを作成する準備が終わりました。
 
-続いてGCloudコマンドでGKEクラスターを作成していきます。
+続いてGCloud SDKでGKEクラスターを作成していきます。
 
 ## 4. GKEクラスターの作成
 
