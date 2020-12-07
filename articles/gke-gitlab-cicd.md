@@ -1,11 +1,12 @@
 ---
-title: "Gitlab RunnerをGKE上で実行するまでの設定方法[Gcloud SDKとHelmら使用]"
+title: "Gitlab RunnerをGKE上で実行するまでの設定方法[Google Cloud SDKとHelmら使用]"
 emoji: "🗂"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["kubernetes", "gitlab"]
 published: false
 ---
 
+これは [エーピーコミュニケーションズ Advent Calendar 2020](https://qiita.com/advent-calendar/2020/ap-com) の9日目の記事です。
 
 ## 0.はじめに
 こんにちは。都内でエンジニアをしている、[@gkzvoice](https://twitter.com/gkzvoice)です。
@@ -29,7 +30,7 @@ Gitlabが公開している、[GitLab CI/CD on Google Kubernetes Engine in 15 mi
 結論としては、試行錯誤した結果、無事できるようになりました。
 
 そこで本記事ではどのようにおこなったか、書いていこうと思います。
-なお、本記事には現時点での説明方法の備忘録としも活用したいので、クラスターを作成することから書いていきます。
+なお、本記事を現時点での説明方法の備忘録としても活用していきたいので、Runnerが使うGKEクラスターを作成することから書いていきます。
 
 ## 3.環境/バージョン情報
 
@@ -37,13 +38,12 @@ Gitlabが公開している、[GitLab CI/CD on Google Kubernetes Engine in 15 mi
 - 作成中
 
 ### 3-2.バージョン情報
-
 - GCE(検証環境)
 ```
 $ grep "^VERSION=" /etc/`os-release 
 VERSION="20.04.1 LTS (Focal Fossa)"
 ```
-- GCloud SDK
+- Google Cloud SDK
 ```
 $ gcloud version
 Google Cloud SDK 318.0.0
@@ -76,89 +76,50 @@ cluster = hello-cluster
 account = yourmail@gmail.com
 disable_usage_reporting = False
 project = your-project
-
-
-## regionとzoneとclusterは設定されていなかった
-## そこで以下のように設定した
-$ gcloud config set compute/region asia-northeast1
-Updated property [compute/region].
-$ gcloud config set compute/zone asia-northeast1-a
-Updated property [compute/zone].
-jump@jump:~/gke-quickstart/app$ gcloud config set container/cluster hello-cluster
-Updated property [container/cluster].
 ```
 
-## 4. クラスターの作成
+### 3-3.gcloud configで追加設定
+- regionとzoneとclusterは設定されていなかった
+- そこで以下のように設定した
+```
+$ gcloud config set compute/region asia-northeast1
+$ gcloud config set compute/zone asia-northeast1-a
+$ gcloud config set container/cluster hello-cluster
+```
 
+### 3-4.GCPプロジェクトのIDを環境変数として使えるようにする
+※本記事ではGCPプロジェクトのIDを説明の便宜上、${PROJECT_ID}と記載します。
+
+```
+$ export PROJECT_ID = your-gcp-project-id
+```
+
+
+## 4. クラスターの作成
 - クラスターの作成
   - 名前はhello-cluterとした
 ```
 $ gcloud container clusters create hello-cluter --num-nodes=1
 ```
 
+- kubectl config current-contextで作成したGKEクラスタが表示されるようにする
 ```
 $ gcloud container clusters get-credentials \
 > $(gcloud container clusters list | grep -v "NAME" | awk '{print $1}')
-Fetching cluster endpoint and auth data.
-kubeconfig entry generated for quickstart.
+
+# 作成したクラスターの確認
+# ※ここで表示されるのはクラスターの名前の頭に${PROJECT_ID}などがついていて、結局なんなのかよくわかっていない。。
+# GCPコンソールのダッシュボードを開いたときのURLが
+"https://console.cloud.google.com/home/dashboard?project=${PROJECT_ID}"
+$ gcloud container clusters list | grep -v "NAME" | awk '{print $1}'
 ```
 
-## 5. DockerコンテナイメージのビルドからGCRにpushまで
+
+## 5.Gitlabで作成したGKEと連携
 
 - GCPプロジェクトのIDを環境変数として使えるようにする
 ```
 $ export PROJECT_ID = your-gcp-project-id
-```
-
-- サンプルリポジトリのclone
-  - 
-```
-
-```
-
-- Dockerfileがあるディレクトリまで移動
-```
-$ cd gke-quickstart/app
-```
-
-- Dockerコンテナイメージのビルド
-  - `hello-python`は任意のDockerコンテナの名前。後々使うmanifests/deployment.ymlでも使用
-```
-hoge@hoge:~/gke-quickstart/app$ docker build -f Dockerfile -t gcr.io/${PROJECT_ID}/hello-python:v1 .
-```
-
-- runする際に使うイメージIDを取得
-```
-hoge@hoge:~/gke-quickstart/app$ docker image ls gcr.io/${PROJECT_ID}/hello-python
-REPOSITORY                                TAG                 IMAGE ID            CREATED             SIZE
-gcr.io/bamboo-storm-296515/hello-python   v1 
-```
-
-```
-docker run -d -p 5001:5000 --name hello-python 420c84c84845
-30c7fa4a48b4a06206023012de36b304a165750d785f942448d3fcc778f8c577
-jump@jump:~/gke-quickstart/app$
-```
-
-
-```
-docker push gcr.io/bamboo-storm-296515/hello-python:v1
-The push refers to repository [gcr.io/bamboo-storm-296515/hello-python]
-7f591ddc4dbf: Layer already exists 
-f032673305e2: Layer already exists 
-7157cf060c69: Layer already exists 
-b60b9aee4946: Layer already exists 
-eaed50855d41: Layer already exists 
-026c477245c5: Layer already exists 
-ee78bcfefc78: Layer already exists 
-c4a6d8ca5d2c: Layer already exists 
-059ed1793a98: Layer already exists 
-712264374d24: Layer already exists 
-475b4eb79695: Layer already exists 
-f3be340a54b9: Layer already exists 
-114ca5b7280f: Layer already exists 
-v1: digest: sha256:01fcc05220a9edad25b091149aa9480142e16985cacc5bc33255b7c68afb7450 size: 3050
-jump@jump:~/gke-quickstart/app$
 ```
 
 
@@ -180,10 +141,11 @@ gke_bamboo-storm-296515_asia-northeast1-a_gke-quickstart
 - **`Connect cluster with certificate`** をクリック
 ![](https://storage.googleapis.com/zenn-user-upload/x0qx5oznrf2nf62ah4i20snxn3xh)
 
-クラスター名は先ほどつけたもの
+クラスター名は先ほどクラスターを作成した際につけたものです。
+※ここでは`hello-cluster`
 
 ```
-jump@jump:~/gke-quickstart/app$ kubectl cluster-info | grep 'Kubernetes master' | awk '/http/ {print $NF}'
+hoge@hoge:~/gke-quickstart/app$ kubectl cluster-info | grep 'Kubernetes master' | awk '/http/ {print $NF}'
 https://xx.xx.xx.xx
 ```
 
@@ -201,7 +163,7 @@ $ kubectl get secret $(kubectl get secret | grep -v "NAME" | awk '{print $1}') -
 ```
 
 ```
-$ kubectl apply -f gitlab/gitlab-admin-service-account.yaml
+$ kubectl apply -f .gitlab-ci.d/gitlab-admin-service-account.yml
 serviceaccount/gitlab created
 clusterrolebinding.rbac.authorization.k8s.io/gitlab-admin created
 
@@ -233,7 +195,7 @@ $ helm repo add gitlab https://charts.gitlab.io
 ![](https://storage.googleapis.com/zenn-user-upload/cewj5o4000nelrgfwvf1waqv85du)
 
 ```
-$ helm install -n gitlab gitlab-runner -f values.yaml gitlab/gitlab-runner
+$ helm install -n gitlab gitlab-runner -f .gitlab-ci.d/values.yaml gitlab/gitlab-runner
 NAME: gitlab-runner
 LAST DEPLOYED: Thu Nov 26 00:28:14 2020
 NAMESPACE: gitlab
@@ -267,9 +229,7 @@ Data
 ====
 ca.crt:     1159 bytes
 namespace:  11 bytes
-token:      eyJhbGciOiJSUzI1NiIsImtpZCI6ImpoRTZBMEc1LWM2N1pUbVc1TnBRRjFBbV9MOWxWbHhlRWR1RmNOMEdIQWcifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJnaXRsYWItdG9rZW4tamZxajYiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZ2l0bGFiIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiODMwMTQwZTQtZTM1Zi00YjA5LWI3YmQtNjFmMjM4YTIwMDhkIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmdpdGxhYiJ9.BCX0ok0ukXvD-bzHf8C9hGTXJlLqZCsQNV9BQ0bkc0uXgTXdZ5nYdXxRd_35VBTFTow0iEGHB4F5jbQfVSwxj6og7cd2Gdw1q39vrrDouu9KKtxgHYy4bkydnz7NvqgJ0hioVj1w9bUeql2aCyHvPIP3I03umesfb0V22sin8jUMJuHrlGxpFV81f8AhuDkwh66uIbkXHphojIzCg4NFffiyuwmN6-CtACfhx28w9yFdQqEjK70NcVRJmrYXV1uFE46dhdx7sjJjkLTo4po0GdmazCPRQLorVn9GWhNpigiyb9aVQV71HMnqeywTGnaFjtOrM0b060EioqTtj4Lzgg
-jump@jump:~/gke-quickstart$ 
-
+token: <authentication_token>
 ```
 
 
@@ -327,8 +287,22 @@ on_failure:
 ```
 
 
-sedでmanifestファイル書き換え
+## x.今後の課題
+最後に本記事では解決できなかった課題を2点ほど挙げさせていただきます。
+```
+- GKEと接続したGitlab Runnerでdocker及びkubectlコマンドをどうやって使うか
+- manifestファイルにベタ書きしたくない値をどうやって隠蔽するか
+  - manifestファイルには環境変数を置き、Gitlab Runnerのジョブを実行する際、環境変数の値に書き換える、あるいは環境変数のkeyを参照して値をRunnerが読み込めるようにする
+```
 
+## y.注釈
+
+### y-1. GCPプロジェクトのIDとは
+- GCPコンソール画面からダッシュボードを開くと以下のようなURLとなっている
+```
+https://console.cloud.google.com/home/dashboard?project=${PROJECT_ID}
+```
+- 上記のURLの${PROJECT_ID}がGCPプロジェクトのID
 
 参考
 
