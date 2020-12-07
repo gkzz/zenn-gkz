@@ -33,8 +33,15 @@ Gitlabが公開している、[GitLab CI/CD on Google Kubernetes Engine in 15 mi
 
 ## 3.環境/バージョン情報
 
-### 3-1.構成図
+### 3-1.超簡易構成図
 
+```
+<GCE(検証環境)> # git push
+↓
+<gitlab.com> # 後続する設定に該当するGitlab Runnerを実行
+↓ 
+<GKE上のGitlab Runner> # .gitlab-ci.ymlに書かれたジョブを実行 
+```
 
 ### 3-2. GCPで有効化しなければいけないAPI
 
@@ -109,13 +116,9 @@ $ export PROJECT_ID = your-gcp-project-id
 
 続いてGCloud SDKでGKEクラスターを作成していきます。
 
-## 4. GKEクラスターの作成
+-----
 
-参考
-```
-- Quickstart | Kubernetes Engine Documentation | Google Cloud
-https://cloud.google.com/kubernetes-engine/docs/quickstart
-```
+## 4. GKEクラスターの作成
 - クラスターの名前をhello-cluterとして作成
 ```
 $ gcloud container clusters create hello-cluter --num-nodes=1
@@ -138,14 +141,6 @@ gke_${PROJECT_ID}_asia-northeast1-a_hello-cluster
 ```
 
 ## 5.Gcloud SDKで作成したGKEクラスターとGitlabとを連携
-参考
-```
-- GitLab CI/CD on Google Kubernetes Engine in 15 minutes or less
-https://about.gitlab.com/blog/2020/03/27/gitlab-ci-on-google-kubernetes-engine/
-- Adding and removing Kubernetes clusters | GitLab
-https://docs.gitlab.com/ee/user/project/clusters/add_remove_clusters.html
-```
-
 ### 5-1.GitlabのGUIでもろもろ設定するページに遷移する
 
 - [https://gitlab.com](https://gitlab.com)にログインし、任意のプロジェクトをクリック
@@ -277,8 +272,9 @@ $ helm list -n gitlab
 NAME         	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART               	APP VERSION
 gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deployed	gitlab-runner-0.23.0	13.6.0     
 ```
-
 ## 6..gitlab-ci.ymlの工夫
+
+-----
 
 ## 7.今後の課題
 最後に本記事では解決できなかった課題を2点ほど挙げさせていただきます。
