@@ -238,18 +238,16 @@ gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deploye
 
 ## y.注釈
 
-[^1]: GCPプロジェクトのIDとは
-
-- GCPコンソール画面からダッシュボードを開くと以下のようなURLとなっている
+[^1]: GCPプロジェクトのIDの確認方法について。GCPコンソール画面からダッシュボードを開くと以下のようなURLとなっている。このURLの${PROJECT_ID}がGCPプロジェクトのID
 ```
 https://console.cloud.google.com/home/dashboard?project=${PROJECT_ID}
 ```
-- 上記のURLの${PROJECT_ID}がGCPプロジェクトのID
 
+[^2]: クラスターの名前の確認方法について。以下のコマンドで表示されるものだと思っていたが違う？左記のコマンドでで表示されるのはクラスターの名前の頭に${PROJECT_ID}などがついていて、なんなのかよくわかっていない。。
 
-[^2]: `gcloud container clusters list | grep -v "NAME" | awk '{print $1}'`が表示するクラスターの名前のようなものはなんなのか
-
-※``gcloud container clusters list | grep -v "NAME" | awk '{print $1}'`で表示されるのはクラスターの名前の頭に${PROJECT_ID}などがついていて、なんなのかよくわかっていない。。
+```
+$ gcloud container clusters list | grep -v "NAME" | awk '{print $1}'
+```
 
 参考
 
