@@ -30,7 +30,6 @@ Gitlabが公開している、[GitLab CI/CD on Google Kubernetes Engine in 15 mi
 結論としては、無事Gitlab RunnerをGKE上で実行することができるようになりました。
 
 そこで本記事ではどのようにおこなったか、書いていきます。
-なお、本記事を現時点での説明方法の備忘録としても活用していきたいので、Runnerが使うGKEクラスターを作成することから書いていきます。
 
 ## 3.環境/バージョン情報
 
@@ -39,15 +38,15 @@ Gitlabが公開している、[GitLab CI/CD on Google Kubernetes Engine in 15 mi
 
 ### 3-2. GCPで有効化しなければいけないAPI
 
-[GitLab CI/CD on Google Kubernetes Engine in 15 minutes or less](https://about.gitlab.com/blog/2020/03/27/gitlab-ci-on-google-kubernetes-engine)に以下のAPIを有効化するようにと書かれています。
+上記のGitlabのブログ、[GitLab CI/CD on Google Kubernetes Engine in 15 minutes or less](https://about.gitlab.com/blog/2020/03/27/gitlab-ci-on-google-kubernetes-engine)に以下のAPIを有効化するようにと書かれています。
 
 > A Google Cloud project with the following APIs enabled:
 >
-> Google Kubernetes Engine API
+> **`Google Kubernetes Engine API`**
 >
-> Cloud Resource Manager API
+> **`Cloud Resource Manager API`**
 >
-> Cloud Billing API
+> **`Cloud Billing API`**
 
 ### 3-3.バージョン情報
 - GCE(検証環境)
@@ -116,11 +115,11 @@ $ export PROJECT_ID = your-gcp-project-id
 ```
 $ gcloud container clusters create hello-cluter --num-nodes=1
 ```
-- 作成したクラスターの確認\[^1]
+- 作成したクラスターの確認^1
 ```
 $ gcloud container clusters list | grep -v "NAME" | awk '{print $1}'
 ```
-- kubectl config current-contextで作成したGKEクラスタが表示されるようにする
+- kubectl config current-contextで作成したGKEクラスタが表示されるようにする^2
 ```
 $ gcloud container clusters get-credentials \
 > $(gcloud container clusters list | grep -v "NAME" | awk '{print $1}')
@@ -239,7 +238,7 @@ gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deploye
 
 ## y.注釈
 
-\[^1]:GCPプロジェクトのIDとは
+^1: GCPプロジェクトのIDとは
 
 - GCPコンソール画面からダッシュボードを開くと以下のようなURLとなっている
 ```
@@ -248,7 +247,7 @@ https://console.cloud.google.com/home/dashboard?project=${PROJECT_ID}
 - 上記のURLの${PROJECT_ID}がGCPプロジェクトのID
 
 
-\[^2]:`gcloud container clusters list | grep -v "NAME" | awk '{print $1}'`が表示するクラスターの名前のようなものはなんなのか
+^2: `gcloud container clusters list | grep -v "NAME" | awk '{print $1}'`が表示するクラスターの名前のようなものはなんなのか
 
 ※``gcloud container clusters list | grep -v "NAME" | awk '{print $1}'`で表示されるのはクラスターの名前の頭に${PROJECT_ID}などがついていて、なんなのかよくわかっていない。。
 
