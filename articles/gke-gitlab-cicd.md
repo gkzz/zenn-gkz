@@ -115,11 +115,11 @@ $ export PROJECT_ID = your-gcp-project-id
 ```
 $ gcloud container clusters create hello-cluter --num-nodes=1
 ```
-- 作成したクラスターの確認^1
+- 作成したクラスターの確認[^1]
 ```
 $ gcloud container clusters list | grep -v "NAME" | awk '{print $1}'
 ```
-- kubectl config current-contextで作成したGKEクラスタが表示されるようにする^2
+- kubectl config current-contextで作成したGKEクラスタが表示されるようにする[^2]
 ```
 $ gcloud container clusters get-credentials \
 > $(gcloud container clusters list | grep -v "NAME" | awk '{print $1}')
@@ -238,7 +238,7 @@ gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deploye
 
 ## y.注釈
 
-^1: GCPプロジェクトのIDとは
+[^1]: GCPプロジェクトのIDとは
 
 - GCPコンソール画面からダッシュボードを開くと以下のようなURLとなっている
 ```
@@ -247,7 +247,7 @@ https://console.cloud.google.com/home/dashboard?project=${PROJECT_ID}
 - 上記のURLの${PROJECT_ID}がGCPプロジェクトのID
 
 
-^2: `gcloud container clusters list | grep -v "NAME" | awk '{print $1}'`が表示するクラスターの名前のようなものはなんなのか
+[^2]: `gcloud container clusters list | grep -v "NAME" | awk '{print $1}'`が表示するクラスターの名前のようなものはなんなのか
 
 ※``gcloud container clusters list | grep -v "NAME" | awk '{print $1}'`で表示されるのはクラスターの名前の頭に${PROJECT_ID}などがついていて、なんなのかよくわかっていない。。
 
