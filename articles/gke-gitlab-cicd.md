@@ -99,7 +99,7 @@ $ gcloud config set container/cluster hello-cluster
 ```
 
 ### 3-5.GCPプロジェクトのIDを環境変数として使えるようにする
-※本記事では説明の便宜上、 **`GCPプロジェクトのIDを${PROJECT_ID}`** と記載します。
+※本記事では説明の便宜上、 **`GCPプロジェクトのIDを${PROJECT_ID}`** と記載します。[^1]
 
 ```
 $ export PROJECT_ID = your-gcp-project-id
@@ -115,15 +115,16 @@ $ export PROJECT_ID = your-gcp-project-id
 ```
 $ gcloud container clusters create hello-cluter --num-nodes=1
 ```
-- 作成したクラスターの確認[^1]
+- 作成したクラスターの確認
 ```
 $ gcloud container clusters list | grep -v "NAME" | awk '{print $1}'
 ```
-- kubectl config current-contextで作成したGKEクラスタが表示されるようにする[^2]
+- kubectl config current-contextで作成したGKEクラスタが表示されるようにする
 ```
 $ gcloud container clusters get-credentials \
 > $(gcloud container clusters list | grep -v "NAME" | awk '{print $1}')
 ```
+上記のコマンドを実行して表示されるものはクラスター名ではない？[^2]
 - 無事kubectlからGKEクラスターを確認することが出来た
 ```
 $ kubectl config current-context
@@ -236,20 +237,7 @@ gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deploye
   - あるいは環境変数のkeyを参照して値をRunnerが読み込めるようにする
 ```
 
-## y.注釈
-
-[^1]: GCPプロジェクトのIDの確認方法について。GCPコンソール画面からダッシュボードを開くと以下のようなURLとなっている。このURLの${PROJECT_ID}がGCPプロジェクトのID
-```
-https://console.cloud.google.com/home/dashboard?project=${PROJECT_ID}
-```
-
-[^2]: クラスターの名前の確認方法について。以下のコマンドで表示されるものだと思っていたが違う？左記のコマンドでで表示されるのはクラスターの名前の頭に${PROJECT_ID}などがついていて、なんなのかよくわかっていない。。
-
-```
-$ gcloud container clusters list | grep -v "NAME" | awk '{print $1}'
-```
-
-参考
+## z.参考
 
 - [GitLabの継続的インテグレーション(CI)と継続的デリバリー(CD)](https://www.gitlab.jp/stages-devops-lifecycle/continuous-integration)
 
@@ -258,3 +246,7 @@ $ gcloud container clusters list | grep -v "NAME" | awk '{print $1}'
 - [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
 - [Deploying a containerized web application](https://cloud.google.com/kubernetes-engigcloud%20container%20clusters%20get-credentialsne/docs/tutorials/hello-app)
+
+
+[^1]: GCPプロジェクトのIDの確認方法について。GCPコンソール画面からダッシュボードを開くと右記のようなURLとなっている。このURLの${PROJECT_ID}がGCPプロジェクトのID。（https://console.cloud.google.com/home/dashboard?project=${PROJECT_ID}）
+[^2]: クラスターの名前の確認方法について。表示されるのはクラスターの名前の頭に${PROJECT_ID}などがついていて、なんなのかよくわかっていない。。
