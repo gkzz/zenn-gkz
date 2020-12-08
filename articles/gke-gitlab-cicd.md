@@ -33,9 +33,9 @@ Gitlabが公開している、[GitLab CI/CD on Google Kubernetes Engine in 15 mi
 ### 2-1.超簡易構成図
 
 ```
-<GCE(検証環境)> # git push
+<GCE(検証環境)> # git pushなど
 ↓
-<gitlab.com> # 後続する設定に該当するGitlab Runnerを実行
+<https://gitlab.com> # 後続する設定に該当するGitlab Runnerを実行
 ↓ 
 <GKE上のGitlab Runner> # .gitlab-ci.ymlに書かれたジョブを実行
 ↓
