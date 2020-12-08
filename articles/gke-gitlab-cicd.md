@@ -15,7 +15,7 @@ published: true
 
 ## 1.本記事における問題点の共有
 
-Gitlabが公開している、[GitLab CI/CD on Google Kubernetes Engine in 15 minutes or less](https://about.gitlab.com/blog/2020/03/27/gitlab-ci-on-google-kubernetes-engine)のとおりにいかず、試行錯誤する点がいくつかありました。
+Gitlabが公開している、[GitLab CI/CD on Google Kubernetes Engine in 15 minutes or less](https://about.gitlab.com/blog/2020/03/27/gitlab-ci-on-google-kubernetes-engine)のとおりにいかず、試行錯誤する点がいくつかありました。[^1]
 
 具体的には以下のとおりです。
 
@@ -105,7 +105,7 @@ $ gcloud config set container/cluster hello-cluster
 ```
 
 ### 2-5.GCPプロジェクトのIDを環境変数として使えるようにする
-※本記事では説明の便宜上、 **`GCPプロジェクトのIDを${PROJECT_ID}`** と記載します。[^1]
+※本記事では説明の便宜上、 **`GCPプロジェクトのIDを${PROJECT_ID}`** と記載します。[^2]
 
 ```
 $ export PROJECT_ID = your-gcp-project-id
@@ -133,7 +133,7 @@ $ gcloud container clusters get-credentials \
 > $(gcloud container clusters list | grep -v "NAME" | awk '{print $1}')
 ```
 - 無事kubectlからGKEクラスターを確認することが出来た
-  - 下記のコマンドを実行して表示されるものはクラスター名ではない？[^2]
+  - 下記のコマンドを実行して表示されるものはクラスター名ではない？[^3]
 ```
 $ kubectl config current-context
 gke_${PROJECT_ID}_asia-northeast1-a_hello-cluster
@@ -573,5 +573,6 @@ spec:
 ## P.S. Twitterもやってるのでフォローしていただけると泣いて喜びます:)
 [@gkzvoice](https://twitter.com/gkzvoice)
 
-[^1]: GCPプロジェクトのIDの確認方法について。GCPコンソール画面からダッシュボードを開くと右記のようなURLとなっている。このURLの${PROJECT_ID}がGCPプロジェクトのID。（https://console.cloud.google.com/home/dashboard?project=${PROJECT_ID}）
-[^2]: 注釈を付けたコマンドを実行して表示されるものはクラスターの名前の頭に${PROJECT_ID}などがついていて、なんなのかよくわかっていない。。
+[^1]: Helm Tillerは今年2020年8月にHelm v2と共に非推奨(depreciate)とされていた。[Helm v2 Deprecation Timeline](https://helm.sh/blog/helm-v2-deprecation-timeline/)
+[^2]: GCPプロジェクトのIDの確認方法について。GCPコンソール画面からダッシュボードを開くと右記のようなURLとなっている。このURLの${PROJECT_ID}がGCPプロジェクトのID。（https://console.cloud.google.com/home/dashboard?project=${PROJECT_ID}）
+[^3]: 注釈を付けたコマンドを実行して表示されるものはクラスターの名前の頭に${PROJECT_ID}などがついていて、なんなのかよくわかっていない。。
