@@ -265,7 +265,7 @@ gitlab  https://charts.gitlab.io
 ```
 
 - Gitlab Runnerのコンフィグファイル(values.yaml)を以下のURLから任意のファイルにコピペ
-  - ここでは`values.yaml`という名前としてコピペした
+  - ここでは **`values.yaml`** という名前としてコピペした
   - https://gitlab.com/gitlab-org/charts/gitlab-runner/-/blob/master/values.yaml
 
 
@@ -273,7 +273,7 @@ gitlab  https://charts.gitlab.io
 - **`CI/CD`** をクリック
 
 ![](https://storage.googleapis.com/zenn-user-upload/h2mezbme12tigjt0314d2fspkgjw =400x)
-- **Runnesrの右隣の`Expand`** をクリック
+- Runnesrの右隣の **`Expand`** をクリック
 
 ![](https://storage.googleapis.com/zenn-user-upload/lvfa4tkv9y5sq99ksiod3fgki4p8 =400x)
 - `Set up a specific Runner manually`付近の以下の太字の値をコピーし、先ほど作成した **`values.yaml`** にペースト
@@ -367,7 +367,7 @@ replicaset.apps/gitlab-runner-gitlab-runner-846756c97d   1         1         1  
 ![](https://storage.googleapis.com/zenn-user-upload/wj5paajani3zt714xp4rztec0d5p =400x)
 
 
-使った.gitlab-ci.ymlを参考までに貼っておきます。
+[参考]使った.gitlab-ci.yml
 
 :::details gitlab-ci.yml
 ```yaml
@@ -379,7 +379,7 @@ include:
 before_script:
   - whoami
 #  - docker --version
-# - kubectl version
+#  - kubectl version
 
 stages:
   - test
@@ -392,6 +392,9 @@ test_k8s:
   tags:
     - always
 
+# 上記のtest_k8sが失敗した場合のみon_failureは実行される
+# 実行される内容は外部プロジェクトの.failure.ymlを読み込む
+# https://gitlab.com/gkzz/gitlab-ci-common/-/blob/master/.failure.yml
 on_failure:
   stage: failure
   extends: .failure
@@ -408,7 +411,9 @@ on_failure:
 
 ```
 - GKEと接続したGitlab Runnerでdocker及びkubectlコマンドをどうやって使うか
+  - Runnerが使うのはGCPのサービスアカウントなるものっぽくて、それの権限が足りないような気が。。
 - manifestファイルにベタ書きしたくない値をどうやって隠蔽するか
+  - 環境変数？？
 ```
 
 ### 7-1.GKEと接続したGitlab Runnerでdocker及びkubectlコマンドをどうやって使うか
