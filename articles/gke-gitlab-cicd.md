@@ -192,7 +192,8 @@ $ kubectl get secret $(kubectl get secret | grep -v "NAME" | awk '{print $1}') -
 ```
 - new Service Tokenの取得にあたり以下のようなyamlファイルを作成
 :::details gitlab-admin-service-account.yaml
-```
+
+```yaml:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -249,17 +250,15 @@ token: <サービストークン>
 
 - **`Add Kubernetes cluster`** をクリック(ここまでの設定を保存)
 
-### 4-3.HelmでGitlabのchartをインストール
-- gitlabのnamspaceの作成とGitlabのhelm repositoryを追加
+### 4-3.Gitlab RunnerのHelm Chartをインストール
+- gitlabのnamspaceの作成とGitlabのHelm Repositoryを追加
 ```
 $ kubectl create namespace gitlab
 namespace/gitlab created
 $ helm repo add gitlab https://charts.gitlab.io
 "gitlab" has been added to your repositories
-```
 
-- 以下のコマンドで追加されたことが確認できる
-```
+# Helm Repositoryが追加されたことかどうかは、以下のコマンドで確認できる
 $ helm repo list
 NAME    URL
 gitlab  https://charts.gitlab.io
@@ -267,15 +266,71 @@ gitlab  https://charts.gitlab.io
 
 - Gitlab Runnerのコンフィグファイル(values.yaml)を以下のURLから任意のファイルにコピペ
   - ここでは`values.yaml`という名前としてコピペした
-- https://gitlab.com/gitlab-org/charts/gitlab-runner/-/blob/master/values.yaml
+  - https://gitlab.com/gitlab-org/charts/gitlab-runner/-/blob/master/values.yaml
 
 
-- Gitlabの画面で
+- Gitlabの画面で **`Settings`** をクリック
+- **`CI/CD`** をクリック
 
-- **`Operations`** をクリック
 ![](https://storage.googleapis.com/zenn-user-upload/h2mezbme12tigjt0314d2fspkgjw =400x)
+- **Runnesrの右隣の`Expand`** をクリック
+
+![](https://storage.googleapis.com/zenn-user-upload/lvfa4tkv9y5sq99ksiod3fgki4p8 =400x)
+- `Set up a specific Runner manually`付近の以下の太字の値をコピーし、先ほど作成した **`values.yaml`** にペースト
+  - 2.Specify the following URL during the Runner setup: **`https://gitlab.com/`**
+  - 3.Use the following registration token during setup: **`xxxxxxxxxxxxxxxxx`**
 
 ![](https://storage.googleapis.com/zenn-user-upload/cewj5o4000nelrgfwvf1waqv85du =400x)
+
+- **`values.yaml`** は先ほどコピペした **`gitlabUrl`** と **`runnerRegistrationToken`** 以外に2箇所修正する
+
+:::details values.yaml修正箇所抜粋(行番号付き)
+
+```yaml:
+27 ## The GitLab Server URL (with protocol) that want to register the runner against
+28 ## ref: https://docs.gitlab.com/runner/commands/README.html#gitlab-runner-register
+29 ##
+30 # gitlabUrl: http://gitlab.your-domain.com/
+31 gitlabUrl: http://gitlab.your-domain.com/
+32 
+33 ## The Registration Token for adding new Runners to the GitLab Server. This must
+34 ## be retrieved from your GitLab Instance.
+35 ## ref: https://docs.gitlab.com/ce/ci/runners/README.html
+36 ##
+37 # runnerRegistrationToken: ""
+38 runnerRegistrationToken: "xxxxxxxxxxxxxxxxx"
+
+(略)
+
+101 ## For RBAC support:
+102 rbac:
+103 #  create: false
+104   create: true
+105   ## Define specific rbac permissions.
+106   # resources: ["pods", "pods/exec", "secrets"]
+107   # verbs: ["get", "list", "watch", "create", "patch", "delete"]
+
+(略)
+
+176   ## Specify the tags associated with the runner. Comma-separated list of tags.
+177   ##
+178   ## ref: https://docs.gitlab.com/ce/ci/runners#use-tags-to-limit-the-number-of-jobs-using-the-runner
+179   ##
+180   # tags: ""
+181   tags: "aaa,bbb,ccc,ddd"
+```
+:::
+
+#### ポイントは**`values.yaml`**のtagを記載するところ。
+- 複数のtagを設定する場合、tag同士を**`,(カンマ)`**で区切ること
+- tagとtagとのあいだにスペースは不要
+
+```yaml:values.yaml(再掲)
+180   # tags: ""
+181   tags: "aaa,bbb,ccc,ddd"
+```
+
+- **`values.yaml`** を使ってGitlab Runnerをインストール
 
 ```
 $ helm install -n gitlab gitlab-runner -f values.yaml gitlab/gitlab-runner
@@ -287,11 +342,29 @@ REVISION: 1
 TEST SUITE: None
 NOTES:
 Your GitLab Runner should now be registered against the GitLab instance reachable at: "https://gitlab.com/"
+
+# deployedとインストールできている
 $ helm list -n gitlab
 NAME         	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART               	APP VERSION
-gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deployed	gitlab-runner-0.23.0	13.6.0     
+gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deployed	gitlab-runner-0.23.0	13.6.0
+
+# podなども作られている
+$ kubectl get all -n gitlab
+NAME                                               READY   STATUS    RESTARTS   AGE
+pod/gitlab-runner-gitlab-runner-846756c97d-jxhgk   1/1     Running   0          30h
+
+NAME                                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/gitlab-runner-gitlab-runner   1/1     1            1           30h
+
+NAME                                                     DESIRED   CURRENT   READY   AGE
+replicaset.apps/gitlab-runner-gitlab-runner-846756c97d   1         1         1       30h
+
 ```
-## 6..gitlab-ci.ymlの工夫
+## 6.ジョブが実行された様子
+
+無事、ジョブが実行されることも確認できました！
+
+![](https://storage.googleapis.com/zenn-user-upload/wj5paajani3zt714xp4rztec0d5p =400x)
 
 -----
 
@@ -299,10 +372,134 @@ gitlab-runner	gitlab   	1       	2020-11-26 00:28:14.721212245 +0000 UTC	deploye
 最後に本記事では解決できなかった課題を2点ほど挙げさせていただきます。
 ```
 - GKEと接続したGitlab Runnerでdocker及びkubectlコマンドをどうやって使うか
+
+:::details [参考]dockerコマンドをRunner上で実行したときのジョブのエラーメッセージ
+
+```.log
+Running with gitlab-runner 13.6.0 (8fa89735)
+  on gitlab-runner-gitlab-runner-846756c97d-jxhgk z3hFb2PB
+Resolving secrets
+00:00
+Preparing the "kubernetes" executor
+00:00
+Using Kubernetes namespace: gitlab
+Using Kubernetes executor with image ubuntu:16.04 ...
+Preparing environment
+00:03
+Waiting for pod gitlab/runner-z3hfb2pb-project-22922816-concurrent-0tm9ff to be running, status is Pending
+Running on runner-z3hfb2pb-project-22922816-concurrent-0tm9ff via gitlab-runner-gitlab-runner-846756c97d-jxhgk...
+Getting source from Git repository
+00:01
+Fetching changes with git depth set to 50...
+Initialized empty Git repository in /builds/gkzz/gke-quickstart/.git/
+Created fresh repository.
+Checking out c1d6cabd as master...
+Skipping Git submodules setup
+Executing "step_script" stage of the job script
+00:00
+$ whoami
+root
+$ docker --version
+/bin/bash: line 103: docker: command not found
+Cleaning up file based variables
+00:00
+ERROR: Job failed: command terminated with exit code 1
+```
+:::
+
+:::details [参考]kubectlコマンドをRunner上で実行したときのジョブのエラーメッセージ
+
+```.log
+Running with gitlab-runner 13.6.0 (8fa89735)
+  on gitlab-runner-gitlab-runner-846756c97d-jxhgk z3hFb2PB
+Resolving secrets
+00:00
+Preparing the "kubernetes" executor
+00:00
+Using Kubernetes namespace: gitlab
+Using Kubernetes executor with image ubuntu:16.04 ...
+Preparing environment
+00:03
+Waiting for pod gitlab/runner-z3hfb2pb-project-22922816-concurrent-09qkjk to be running, status is Pending
+Running on runner-z3hfb2pb-project-22922816-concurrent-09qkjk via gitlab-runner-gitlab-runner-846756c97d-jxhgk...
+Getting source from Git repository
+00:02
+Fetching changes with git depth set to 50...
+Initialized empty Git repository in /builds/gkzz/gke-quickstart/.git/
+Created fresh repository.
+Checking out 8f0eb238 as master...
+Skipping Git submodules setup
+Executing "step_script" stage of the job script
+00:00
+$ whoami
+root
+$ kubectl version
+/bin/bash: line 103: kubectl: command not found
+Cleaning up file based variables
+00:00
+ERROR: Job failed: command terminated with exit code 1
+```
+:::
+
 - manifestファイルにベタ書きしたくない値をどうやって隠蔽するか
   - manifestファイルには環境変数を置き、Gitlab Runnerのジョブを実行する際、環境変数の値に書き換える
   - あるいは環境変数のkeyを参照して値をRunnerが読み込めるようにする
+
+:::details sedのところでSyntax Errorを引く.gitlab-ci.yml抜粋
+
+```.yaml:manifests/deployment.yaml.tmpl
+  script:
+    - pwd
+    - ls
+    - cp $PWD/manifests/deployment.yml.tmpl $PWD/manifests/deployment.yml 
+    - sed -i -e 's|port: <SERVICE_PORT>|port: "${SERVICE_PORT}"|' \
+          -i -e 's|targetPort: <FORWARD_PORT>|targetPort: "${FORWARD_PORT}"|' \
+          -i -e 's|image: <CONTAINER_IMAGE>:<IMAGE_VERSION>|image: "${CONTAINER_IMAGE}":"${IMAGE_VERSION}"|' \
+          -i -e 's|- containerPort: <FORWARD_PORT>|- containerPort: "${FORWARD_PORT}"|' \ 
+          $PWD/manifests/deployment.yml
 ```
+:::
+
+:::details sedの対象のmanifests/deployment.yaml.tmpl
+
+```yaml:manifests/deployment.yaml.tmpl
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-python-service
+spec:
+  selector:
+    app: hello-python
+  ports:
+  - protocol: "TCP"
+    port: <SERVICE_PORT>
+    targetPort: <FORWARD_PORT>
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-python
+spec:
+  selector:
+    matchLabels:
+      app: hello-python
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: hello-python
+    spec:
+      containers:
+      - name: hello-python
+        image: <CONTAINER_IMAGE>:<IMAGE_VERSION>
+        #imagePullPolicy: Never
+        ports:
+        - containerPort: <FORWARD_PORT>
+```
+:::
+
 
 ## 8.GitLabの日本コミュニティのみなさまへ
 本記事を執筆するにあたり、GitLabの日本コミュニティのみなさまのお力添えがなければ、公開まで到達できなかったと思います。ありがとうございました。本記事がGitlabのよりよい発展の一助となればうれしいです。Gitlab万歳！
