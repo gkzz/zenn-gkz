@@ -321,8 +321,8 @@ gitlab  https://charts.gitlab.io
 ```
 :::
 
-#### ポイントは**`values.yaml`**のtagを記載するところ。
-- 複数のtagを設定する場合、tag同士を**`,(カンマ)`**で区切ること
+#### ポイントは **`values.yaml`** のtagを記載するところ。
+- 複数のtagを設定する場合、tag同士を **`,(カンマ)`** で区切ること
 - tagとtagとのあいだにスペースは不要
 
 ```yaml:values.yaml(再掲)
@@ -366,12 +366,52 @@ replicaset.apps/gitlab-runner-gitlab-runner-846756c97d   1         1         1  
 
 ![](https://storage.googleapis.com/zenn-user-upload/wj5paajani3zt714xp4rztec0d5p =400x)
 
+
+使った.gitlab-ci.ymlを参考までに貼っておきます。
+
+:::details gitlab-ci.yml
+```yaml
+include:
+  - project: gkzz/gitlab-ci-common
+    ref: master
+    file: .failure.yml
+
+before_script:
+  - whoami
+#  - docker --version
+# - kubectl version
+
+stages:
+  - test
+  - failure
+
+test_k8s:
+  stage: test
+  script:
+    - ls
+  tags:
+    - always
+
+on_failure:
+  stage: failure
+  extends: .failure
+  tags:
+    - always
+  when: on_failure
+```
+:::
+
 -----
 
 ## 7.今後の課題
 最後に本記事では解決できなかった課題を2点ほど挙げさせていただきます。
+
 ```
 - GKEと接続したGitlab Runnerでdocker及びkubectlコマンドをどうやって使うか
+- manifestファイルにベタ書きしたくない値をどうやって隠蔽するか
+```
+
+### 7-1.GKEと接続したGitlab Runnerでdocker及びkubectlコマンドをどうやって使うか
 
 :::details [参考]dockerコマンドをRunner上で実行したときのジョブのエラーメッセージ
 
@@ -441,9 +481,15 @@ ERROR: Job failed: command terminated with exit code 1
 ```
 :::
 
-- manifestファイルにベタ書きしたくない値をどうやって隠蔽するか
-  - manifestファイルには環境変数を置き、Gitlab Runnerのジョブを実行する際、環境変数の値に書き換える
-  - あるいは環境変数のkeyを参照して値をRunnerが読み込めるようにする
+### 7-2.manifestファイルにベタ書きしたくない値をどうやって隠蔽するか
+
+案としては以下の2案が考えられそうです。
+
+```
+- manifestファイルには環境変数を置き、Gitlab Runnerのジョブを実行する際、環境変数の値に書き換える
+- あるいは環境変数のkeyを参照して値をRunnerが読み込めるようにする
+```
+.gitlab-ci.ymlにsedコマンドを書き、環境変数が書かれたmanifestファイルを書き換えようとしましたが、Syntax Errorを引いてしまいました。。
 
 :::details sedのところでSyntax Errorを引く.gitlab-ci.yml抜粋
 
@@ -500,6 +546,7 @@ spec:
 ```
 :::
 
+以上が残された課題です。
 
 ## 8.GitLabの日本コミュニティのみなさまへ
 本記事を執筆するにあたり、GitLabの日本コミュニティのみなさまのお力添えがなければ、公開まで到達できなかったと思います。ありがとうございました。本記事がGitlabのよりよい発展の一助となればうれしいです。Gitlab万歳！
