@@ -3,7 +3,7 @@ title: "Gitlab RunnerをGKE上で実行するまでの設定方法[Google Cloud 
 emoji: "🗂"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["kubernetes", "gitlab"]
-published: false
+published: true
 ---
 
 これは [エーピーコミュニケーションズ Advent Calendar 2020](https://qiita.com/advent-calendar/2020/ap-com) の9日目の記事です。
@@ -39,7 +39,7 @@ Gitlabが公開している、[GitLab CI/CD on Google Kubernetes Engine in 15 mi
 ↓ 
 <GKE上のGitlab Runner> # .gitlab-ci.ymlに書かれたジョブを実行
 ↓
-echo "success" 
+echo "success" # 任意のジョブが実行された！
 ```
 
 ### 2-2. GCPで有効化しなければいけないAPI
