@@ -174,7 +174,7 @@ hello-cluster
 ```
 - API URLの取得方法
 ```
-hoge@hoge:~/gke-quickstart/app$ kubectl cluster-info | grep 'Kubernetes master' | awk '/http/ {print $NF}'
+$ kubectl cluster-info | grep 'Kubernetes master' | awk '/http/ {print $NF}'
 https://xx.xx.xx.xx
 ```
 - CA Certificateの取得方法
@@ -276,8 +276,8 @@ gitlab  https://charts.gitlab.io
 - Runnesrの右隣の **`Expand`** をクリック
 
 ![](https://storage.googleapis.com/zenn-user-upload/lvfa4tkv9y5sq99ksiod3fgki4p8 =400x)
-- `Set up a specific Runner manually`付近の以下の太字の値をコピーし、先ほど作成した **`values.yaml`** にペースト
-  - 2.Specify the following URL during the Runner setup: **`https://gitlab.com/`**
+- **`Set up a specific Runner manually`** 付近の以下の太字の値をコピーし、先ほど作成した **`values.yaml`** にペースト
+  - 2.Specify the following URL during the Runner setup: **`http://gitlab.your-domain.com/`**
   - 3.Use the following registration token during setup: **`xxxxxxxxxxxxxxxxx`**
 
 ![](https://storage.googleapis.com/zenn-user-upload/cewj5o4000nelrgfwvf1waqv85du =400x)
@@ -291,21 +291,21 @@ gitlab  https://charts.gitlab.io
 28 ## ref: https://docs.gitlab.com/runner/commands/README.html#gitlab-runner-register
 29 ##
 30 # gitlabUrl: http://gitlab.your-domain.com/
-31 gitlabUrl: http://gitlab.your-domain.com/
+31 gitlabUrl: http://gitlab.your-domain.com/   #### 1箇所目 ####
 32 
 33 ## The Registration Token for adding new Runners to the GitLab Server. This must
 34 ## be retrieved from your GitLab Instance.
 35 ## ref: https://docs.gitlab.com/ce/ci/runners/README.html
 36 ##
 37 # runnerRegistrationToken: ""
-38 runnerRegistrationToken: "xxxxxxxxxxxxxxxxx"
+38 runnerRegistrationToken: "xxxxxxxxxxxxxxxxx"   #### 2箇所目 ####
 
 (略)
 
 101 ## For RBAC support:
 102 rbac:
 103 #  create: false
-104   create: true
+104   create: true  #### 3箇所目 ####
 105   ## Define specific rbac permissions.
 106   # resources: ["pods", "pods/exec", "secrets"]
 107   # verbs: ["get", "list", "watch", "create", "patch", "delete"]
@@ -317,7 +317,7 @@ gitlab  https://charts.gitlab.io
 178   ## ref: https://docs.gitlab.com/ce/ci/runners#use-tags-to-limit-the-number-of-jobs-using-the-runner
 179   ##
 180   # tags: ""
-181   tags: "aaa,bbb,ccc,ddd"
+181   tags: "aaa,bbb,ccc,ddd"  #### 4箇所目 ####
 ```
 :::
 
