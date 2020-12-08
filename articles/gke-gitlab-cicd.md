@@ -190,9 +190,7 @@ $ kubectl get secret $(kubectl get secret | grep -v "NAME" | awk '{print $1}') -
    -----BEGIN ROOT CERTIFICATE-----
    -----END ROOT CERTIFICATE-----
 ```
-- new Service Tokenの取得方法
-
-# 以下のようなyamlファイルを作成
+- new Service Tokenの取得にあたり以下のようなyamlファイルを作成
 :::details gitlab-admin-service-account.yaml
 ```
 apiVersion: v1
@@ -216,12 +214,15 @@ subjects:
 ```
 :::
 
-# gitlab-admin-service-account.yamlをkubectl apply
+- gitlab-admin-service-account.yamlをkubectl apply
+```
 $ kubectl apply -f gitlab-admin-service-account.yml
 serviceaccount/gitlab created
 clusterrolebinding.rbac.authorization.k8s.io/gitlab-admin created
+```
 
-# サービストークンを取得
+- サービストークンを取得
+```
 $ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep gitlab | awk '{print $1}')
 Name:         gitlab-token-2d59g
 Namespace:    kube-system
@@ -246,10 +247,9 @@ token: <サービストークン>
 
 ![](https://storage.googleapis.com/zenn-user-upload/ujmia7r0glr75o6z5s1z82s9y09i =400x)
 
-- **`Add Kubernetes cluster`**をクリック
+- **`Add Kubernetes cluster`** をクリック(ここまでの設定を保存)
 
-### 5-2.HelmでGitlabのchartをインストール
-
+### 4-3.HelmでGitlabのchartをインストール
 - gitlabのnamspaceの作成とGitlabのhelm repositoryを追加
 ```
 $ kubectl create namespace gitlab
@@ -265,9 +265,9 @@ NAME    URL
 gitlab  https://charts.gitlab.io
 ```
 
-- Gitlab Runner values.yaml
-https://gitlab.com/gitlab-org/charts/gitlab-runner/-/blob/master/values.yaml
-
+- Gitlab Runnerのコンフィグファイル(values.yaml)を以下のURLから任意のファイルにコピペ
+  - ここでは`values.yaml`という名前としてコピペした
+- https://gitlab.com/gitlab-org/charts/gitlab-runner/-/blob/master/values.yaml
 
 
 - Gitlabの画面で
@@ -278,7 +278,7 @@ https://gitlab.com/gitlab-org/charts/gitlab-runner/-/blob/master/values.yaml
 ![](https://storage.googleapis.com/zenn-user-upload/cewj5o4000nelrgfwvf1waqv85du =400x)
 
 ```
-$ helm install -n gitlab gitlab-runner -f .gitlab-ci.d/values.yaml gitlab/gitlab-runner
+$ helm install -n gitlab gitlab-runner -f values.yaml gitlab/gitlab-runner
 NAME: gitlab-runner
 LAST DEPLOYED: Thu Nov 26 00:28:14 2020
 NAMESPACE: gitlab
