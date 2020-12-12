@@ -13,9 +13,11 @@ published: false
 
 #### 2種類のyqコマンド
 yqコマンドは2種類合って紛らわしいので、本記事で取り扱うyqコマンドについて認識を合わせましょう。
-- [kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
-もうひとつのyqコマンドもご参考までに掲載します。
-- [mikefarah/yq: yq is a portable command-line YAML processor](https://github.com/mikefarah/yq)
+
+- 本記事で取り扱うyqコマンド(jq wrapper for YAML)
+  - [kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
+- もうひとつのyqコマンドもご参考までに
+  - [mikefarah/yq: yq is a portable command-line YAML processor](https://github.com/mikefarah/yq)
 
 ## 1.本記事における問題点の共有
 突然ではありますが、Kubernetesのmanifestファイルの中に書かれている一部の値をCLIで、あるいはCIツールの実行中に書き換えるケースってないでしょうか？
