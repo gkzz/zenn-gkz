@@ -18,7 +18,8 @@ yqコマンドは2種類合って紛らわしいので、本記事で取り扱�
 - [mikefarah/yq: yq is a portable command-line YAML processor](https://github.com/mikefarah/yq)
 
 ## 1.本記事における問題点の共有
-Kubernetesのmanifestファイルの中に書かれている一部の値をCIツールが書き換える必要がありました。
+突然ではありますが、Kubernetesのmanifestファイルの中に書かれている一部の値をCLIで、あるいはCIツールの実行中に書き換えるケースってないでしょうか？
+僕もそういったケースに遭遇しました。
 当初はsedでやろうかと思ったのですが、友人からyqいいよと教えていただき、yqについて調べたところ、いくつかの問題点を感じました。
 具体的には以下のとおりです。
 
