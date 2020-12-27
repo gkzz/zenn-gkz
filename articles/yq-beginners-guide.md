@@ -40,5 +40,40 @@ published: false
 [jq コマンドを使う日常のご紹介](https://twitter.com/gkzvoice/status/1337681052639227910?s=20)
 
 
+yqのインストール
+```
+$ python3 -m venv 38python3 -m venv 38
+$ source 38/bin/activate
+$ u=https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml && curl $u -o install.master.yaml
+```
+
+```
+$ echo "{bar: dummy}" | yq -y > input00.yml
+$ cat input00.yml
+bar: dummy
+$ yq -r '.bar' input00.yml 
+dummy
+```
+
+```
+$ echo "{bar: dummy}" | yq -y > input00.yml
+$ cat input00.yml
+bar: dummy
+$ yq -r '.bar' input00.yml 
+dummy
+$ echo "foo: {bar: dummy}" | yq -y > input01.yml
+$ cat input01.yml 
+foo:
+  bar: dummy
 
 
+$ cat input01.yml 
+foo: 
+  bar: dummy
+$ yq .foo input01.yml 
+{
+  "bar": "dummy"
+}
+$ yq .foo.bar input01.yml
+"dummy"
+```
