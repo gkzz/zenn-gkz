@@ -85,12 +85,12 @@ foo:
   bar: dummy
 ```
 
-## 6.yamlからkeyを指定して値を取り出す
+## 6.yamlからkeyを指定してvalueを取り出す
 
 - **`[必須]`** keyの直前に **`.(コロン)`** をつけること
   - コロンを付けないとcompile errorになる
 ```
-(38) $ yq bar input00.yml 
+(38) $ yq 'bar' input00.yml 
 jq: error: bar/0 is not defined at <top-level>, line 1:
 bar
 jq: 1 compile error
@@ -99,32 +99,62 @@ jq: 1 compile error
 - オプションなし
   - json形式で出力
 ```
-(38) $ yq .bar input00.yml 
+(38) $ yq '.bar' input00.yml 
 "dummy"
-(38) $ yq .foo input01.yml 
-{
-  "bar": "dummy"
-}
 ```
 
 - **`-r`** をつけて
   - ダブルクオーテーション無し
   - >  -r output raw strings, not JSON texts;
     - 出所： [yq: Command-line YAML/XML processor - jq wrapper for YAML and XML documents](https://kislyuk.github.io/yq/)
-
+  - yqのコマンド結果を後々使う可能性を考慮すると、ダブルクオーテーションを取り除くために-rはデフォでよさそう 
 ```
-(38) $ yq -r .bar input00.yml 
-dummy
-(38) $ yq .foo input01.yml 
-{
-  "bar": "dummy"
-}
-(38) $ yq .foo.bar input01.yml
-"dummy"
 (38) $ yq -r '.bar' input00.yml 
 dummy
 ```
 
+### 6-1.2重dictの場合
+- keyとkeyの間にコロンを挟む
+```
+(38) $ yq -r '.foo' input01.yml 
+{
+  "bar": "dummy"
+}
+(38) $ yq '.foo.bar' input01.yml
+"dummy"
+```
+
+### 6-2.dictのvalueがリストである場合
+- yamlを用意
+```
+(38) $ echo "foo: {bar: [dummy0, dummy1]}" | yq -y > input02.yml
+(38) $ cat input02.yml
+foo:
+  bar:
+    - dummy0
+    - dummy1
+```
+
+- dictのvalueが文字列ではなく、リストである場合も変わらず **`.key.key`** でOK
+```
+(38) $ yq -r '.foo.bar' input02.yml
+[
+  "dummy0",
+  "dummy1"
+]
+```
+
+- リストの0番目だけを取得したい場合は **`.key.key[0]`** 
+```
+(38) $ yq -r '.foo.bar[0]' input02.yml
+dummy0
+```
+
+- リストの1番目だけを取得したい場合は **`.key.key[1]`** 
+```
+(38) $ yq -r '.foo.bar[1]' input02.yml
+dummy1
+```
 
 ```
 $ u=https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml && curl $u -o install.master.yaml
