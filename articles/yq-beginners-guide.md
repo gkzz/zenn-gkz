@@ -82,7 +82,7 @@ foo:
 
 ## 6.yamlからkeyを指定して値を取り出す
 
-- [必須]keyの直前に **`.(コロン)`** をつけること
+- **``[必須]`** keyの直前に **`.(コロン)`** をつけること
   - コロンを付けないとcompile errorになる
 ```
 (38) $ yq bar input00.yml 
@@ -102,10 +102,10 @@ jq: 1 compile error
 }
 ```
 
-- **`-r`**をつけて
+- **`-r`** をつけて
   - ダブルクオーテーション無し
   - >  -r output raw strings, not JSON texts;
-    - `yq --help`より
+    - 出所： [yq: Command-line YAML/XML processor - jq wrapper for YAML and XML documents](https://kislyuk.github.io/yq/)
 ```
 (38) $ yq -r .bar input00.yml 
 dummy
