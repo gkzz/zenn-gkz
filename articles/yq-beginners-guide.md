@@ -13,16 +13,11 @@ published: false
 https://twitter.com/gkzvoice/status/1342856632523362307
 
 
-## 1.本記事のサマリー
+## 1.yqコマンドとは
+- Yaml/XMLをgrepみたいに抽出
+- いいかんじに整形してくれる
 
-- yqでできること
-  - yqはjsonをyamlに変換
-  - yamlからjson/yaml形式に出力
-  - yamlの任意の箇所を書き換える
-
-yqコマンドなら、数千行のmanifestもいいかんじに該当箇所を探すことができます。
-Gitlab Runner上でmanifestの一部をsedしていたことをyqコマンドでシュッとすることもできます。
-
+なので、数千行のmanifestやplaybookに対してgrepしたり、Gitlab Runner上でmanifestの一部をsedしていたことをyqコマンドでシュッとすることもできます。
 いいことずくめのyqコマンドなのですが、使ってみようと触ってみたら問題点を感じました。
 
 ## 2.本記事における問題点の共有
@@ -47,7 +42,7 @@ yq 2.11.1
 - jqのYAML/XMLラッパー
   - [kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
   - **`jqコマンドのドキュメントを流用できる`**
-    - e.g. [jq コマンドを使う日常のご紹介](https://twitter.com/gkzvoice/status/1337681052639227910?s=20)
+    - e.g. [jqコマンドを使う日常のご紹介](https://qiita.com/takeshinoda@github/items/2dec7a72930ec1f658af)
 - もうひとつのyqコマンド
   - [mikefarah/yq: yq is a portable command-line YAML processor](https://github.com/mikefarah/yq)
 
