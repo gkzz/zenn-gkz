@@ -34,6 +34,7 @@ https://twitter.com/gkzvoice/status/1342856632523362307
 
 ```
 - Python 3.8.5
+- $ pip 20.3.3 
 - yq 2.11.1
 ```
 ### 3-1.種類のyqコマンド
@@ -54,6 +55,8 @@ https://twitter.com/gkzvoice/status/1342856632523362307
 ```
 $ python3 -m venv 38python3 -m venv 38
 $ source 38/bin/activate
+$ pip install --upgrade pip
+$ pip install yq
 ```
 
 以降、本記事ではpython3.8の仮想環境上でyqを扱います。
@@ -106,6 +109,7 @@ jq: 1 compile error
   - ダブルクオーテーション無し
   - >  -r output raw strings, not JSON texts;
     - 出所： [yq: Command-line YAML/XML processor - jq wrapper for YAML and XML documents](https://kislyuk.github.io/yq/)
+
 ```
 (38) $ yq -r .bar input00.yml 
 dummy
