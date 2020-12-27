@@ -12,16 +12,24 @@ published: false
 
 https://twitter.com/gkzvoice/status/1342856632523362307
 
-## 1. yqコマンドのいいところ
-yamlと言いますとKubernetesのmanifestですよね。
-manifestは長いものは数千単位のものもあります。
+
+## 1.本記事のサマリー
+
+- yqでできること
+  - yqはjsonをyamlに変換
+  - yamlからjson/yaml形式に出力
+  - yamlの任意の箇所を書き換える
+
+## 2.yqコマンドのいいところ
+yamlと言えば、Kubernetesのmanifes、あるいはAnsibleのplaybookを挙げられる方は多いのではないでしょうか？
+最近manifestを触ることがあるのですが、数千単位のものを扱うことがあり、ビビりました。(Argo CDのmanifestなど)
 探したいキーワードが複数あるなかでgrepするものもたいへんです。
-そんなyamlでお探しモノを見つけたり、あるいは該当箇所を書き換えることもできます。
+そんな数千行のmanifestもyqだと一瞬でパースすることができます。
 Gitlab Runner上でmanifestの一部をsedしていたことをyqコマンドでシュッとすることもできます。
 
-いいことずくめのyqコマンドなのですが、使ってみようと触ったらいくつか問題点を感じました。
+いいことずくめのyqコマンドなのですが、使ってみようと触ってみたら問題点を感じました。
 
-## 2.本記事における問題点の共有
+## 3.本記事における問題点の共有
 
 ```
 - yqはjqに比べてドキュメントの絶対数が少ない
@@ -30,6 +38,12 @@ Gitlab Runner上でmanifestの一部をsedしていたことをyqコマンドで
 ```
 
 そこで、「ググれる」俺得なyqコマンド使い方について調べたことを本記事にまとめようと思いました。
+
+## 3.[本記事のサマリー]yqでできること
+
+- yqはjsonをyamlに変換
+- yamlからjson/yaml形式に出力
+- yamlの任意の箇所を書き換える
 
 ## 3.環境/バージョン情報
 
@@ -57,6 +71,15 @@ yq 2.11.1
 ```
 $ python3 -m venv 38python3 -m venv 38
 $ source 38/bin/activate
+```
+
+## 5.yqでできること
+
+- yqはjsonをyamlに変換
+- yamlからjson/yaml形式に出力
+- yamlの任意の箇所を書き換える
+
+
 ```
 
 ```
