@@ -49,14 +49,16 @@ https://twitter.com/gkzvoice/status/1342856632523362307
 
 
 ## 4.yqのインストール
-※pythonの仮想環境venv上で検証を進めますが、直接`pip install yq`でも大丈夫です。
+※pythonの仮想環境ツールのvenv上で検証を進めますが、直接`pip install yq`でも大丈夫です。
 ご自身の環境に併せてyqをご用意ください。
 
 ```
+# 仮想環境ツールのvenvを使って38という仮想環境を構築
 $ python3 -m venv 38python3 -m venv 38
 $ source 38/bin/activate
-$ pip install --upgrade pip
-$ pip install yq
+# pipをアップグレードしてからyqをインストール
+(38) $ pip install --upgrade pip
+(38) $ pip install yq
 ```
 
 以降、本記事ではpython3.8の仮想環境上でyqを扱います。
