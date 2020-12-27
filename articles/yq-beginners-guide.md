@@ -74,30 +74,29 @@ yamlから値を取り出すことより、yaml形式に出力することのほ
 bar: dummy
 (38)$ yq -r '.bar' input00.yml 
 dummy
-$ echo "foo: {bar: dummy}" | yq -y > input01.yml
-$ cat input01.yml 
+(38) $ echo "foo: {bar: dummy}" | yq -y > input01.yml
+(38) $ cat input01.yml 
 foo:
   bar: dummy
 ```
 
 ## 6.yamlからkeyを指定して値を取り出す
 
-- [必須]keyの直前に **`.(コロン)`**をつけること
+- [必須]keyの直前に **`.(コロン)`** をつけること
   - コロンを付けないとcompile errorになる
 ```
-$ yq bar input00.yml 
+(38) $ yq bar input00.yml 
 jq: error: bar/0 is not defined at <top-level>, line 1:
 bar
 jq: 1 compile error
 ```
 
-
 - オプションなし
   - json形式で出力
 ```
-$ yq .bar input00.yml 
+(38) $ yq .bar input00.yml 
 "dummy"
-$ yq .foo input01.yml 
+(38) $ yq .foo input01.yml 
 {
   "bar": "dummy"
 }
@@ -108,16 +107,15 @@ $ yq .foo input01.yml
   - >  -r output raw strings, not JSON texts;
     - `yq --help`より
 ```
-$ yq -r .bar input00.yml 
+(38) $ yq -r .bar input00.yml 
 dummy
-```
-$ yq .foo input01.yml 
+(38) $ yq .foo input01.yml 
 {
   "bar": "dummy"
 }
-$ yq .foo.bar input01.yml
+(38) $ yq .foo.bar input01.yml
 "dummy"
-$ yq -r '.bar' input00.yml 
+(38) $ yq -r '.bar' input00.yml 
 dummy
 ```
 
