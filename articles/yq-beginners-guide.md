@@ -42,10 +42,9 @@ $ yq --version
 yq 2.11.1
 ```
 ### 3-1.種類のyqコマンド
-さて、yqコマンドは上述したとおり2種類合って紛らわしいです。
+さて、yqコマンドは上述したとおり2種類合って紛らわしいので本記事で扱うyqコマンドについて確認しておきましょう。
 
-- 本記事で取り扱うyqコマンド
-  - jqのYAML/XMLラッパー
+- jqのYAML/XMLラッパー
   - **`jqコマンドのドキュメントを流用できる`**
     - e.g. [jq コマンドを使う日常のご紹介](https://twitter.com/gkzvoice/status/1337681052639227910?s=20)
 [kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
@@ -63,17 +62,6 @@ $ python3 -m venv 38python3 -m venv 38
 $ source 38/bin/activate
 ```
 
-## 5.yqでできること
-
-- yqはjsonをyamlに変換
-- yamlからjson/yaml形式に出力
-- yamlの任意の箇所を書き換える
-
-
-```
-
-```
-$ u=https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml && curl $u -o install.master.yaml
 ```
 
 ```
@@ -106,3 +94,9 @@ $ yq .foo input01.yml
 $ yq .foo.bar input01.yml
 "dummy"
 ```
+
+
+```
+$ u=https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml && curl $u -o install.master.yaml
+```
+
