@@ -9,6 +9,9 @@ published: false
 ## 0.はじめに
 こんにちは。都内でエンジニアをしている、[@gkzvoice](https://twitter.com/gkzvoice)です。
 本記事は、なんかいいかんじにパースしてくれるjqコマンドのyaml版のyqコマンドの使い方備忘録です。
+
+https://twitter.com/gkzvoice/status/1342856632523362307
+
 本題に入る前に、なぜyqコマンドの使い方に関する備忘録を書こうと思ったのか、その理由をお伝えします。
 
 ## 1.本記事における問題点の共有
@@ -26,24 +29,33 @@ published: false
 
 そこで、「ググれる」俺得なyqコマンド使い方について調べたことを本記事にまとめようと思いました。
 
-#### 2種類のyqコマンド
+## 2.環境/バージョン情報
+
+```
+$ yq --version
+yq 2.11.1
+```
+### 2種類のyqコマンド
 さて、yqコマンドは上述したとおり2種類合って紛らわしいです。
-本記事で取り扱うyqコマンドはこちらです。
+
+- 本記事で取り扱うyqコマンド
+  - jqのYAML/XMLラッパー
+  - **`jqコマンドのドキュメントを流用できる`**
+    - e.g. [jq コマンドを使う日常のご紹介](https://twitter.com/gkzvoice/status/1337681052639227910?s=20)
 [kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
 
-もうひとつのyqコマンドはこちらです。
+- もうひとつのyqコマンド
 [mikefarah/yq: yq is a portable command-line YAML processor](https://github.com/mikefarah/yq)
 
-なお、jqコマンドについては、すでに使い方に関する記事が出ています。
-本記事では取り上げることができていないyqコマンドの使い方についてご存知の方は、ぜひ本記事のコメント欄にてご共有いただけるとうれしいです。
 
-[jq コマンドを使う日常のご紹介](https://twitter.com/gkzvoice/status/1337681052639227910?s=20)
+### yqのインストール
+※pythonの仮想環境venv上で検証を進めますが、直接`pip install yq`でも大丈夫です。
+ご自身の環境に併せてyqをご用意ください。
 
-
-yqのインストール
 ```
 $ python3 -m venv 38python3 -m venv 38
 $ source 38/bin/activate
+```
 $ u=https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml && curl $u -o install.master.yaml
 ```
 
