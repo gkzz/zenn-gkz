@@ -155,6 +155,30 @@ dummy0
 (38) $ yq -r '.foo.bar[1]' input02.yml
 dummy1
 ```
+### 6-2.dictのvalueが複数のdictである場合
+
+- yamlを用意
+```
+(38) $ echo "foo: [{bar: dummy0}, {bar: dummy1}]" | yq -y > input03.yml 
+(38) $ cat input03.yml 
+foo:
+  - bar: dummy0
+  - bar: dummy1
+```
+- gggggg
+```
+(38) $ yq -r '.foo[].bar' input03.yml
+dummy0
+```
+- ada
+```
+dummy1
+(38) $ yq -r '.foo[0].bar' input03.yml
+dummy0
+(38) $ yq -r '.foo[1].bar' input03.yml
+dummy1
+```
+
 
 ```
 $ u=https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml && curl $u -o install.master.yaml
