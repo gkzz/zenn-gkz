@@ -62,7 +62,6 @@ $ python3 -m venv 38python3 -m venv 38
 $ source 38/bin/activate
 ```
 
-```
 
 ```
 $ echo "{bar: dummy}" | yq -y > input00.yml
