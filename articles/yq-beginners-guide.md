@@ -8,17 +8,17 @@ published: false
 
 ## 0.はじめに
 こんにちは。都内でエンジニアをしている、[@gkzvoice](https://twitter.com/gkzvoice)です。
-本記事は、なんかいいかんじにパースしてくれるjqコマンドのyaml版のyqコマンドの使い方備忘録です。
+本記事は、jsonをいいかんじに出力したり、加工できるjqコマンドのラッパーのyqコマンドの使い方備忘録です。
 
 https://twitter.com/gkzvoice/status/1342856632523362307
 
 
 ## 1.yqコマンドとは
 - Yaml/XMLをgrepみたいに抽出
-- いいかんじに整形してくれる
+- いいかんじに整形もしてくれる
 
 なので、数千行のmanifestやplaybookに対してgrepしたり、Gitlab Runner上でmanifestの一部をsedしていたことをyqコマンドでシュッとすることもできます。
-いいことずくめのyqコマンドなのですが、使ってみようと触ってみたら問題点を感じました。
+いいことずくめのyqコマンドなのですが、いざ触ってみたら、問題点を感じました。
 
 ## 2.本記事における問題点の共有
 
@@ -33,8 +33,8 @@ https://twitter.com/gkzvoice/status/1342856632523362307
 ## 3.環境/バージョン情報
 
 ```
-$ yq --version
-yq 2.11.1
+- Python 3.8.5
+- yq 2.11.1
 ```
 ### 3-1.種類のyqコマンド
 さて、yqコマンドは上述したとおり2種類合って紛らわしいので本記事で扱うyqコマンドについて確認しておきましょう。
@@ -56,36 +56,69 @@ $ python3 -m venv 38python3 -m venv 38
 $ source 38/bin/activate
 ```
 
+以降、本記事ではpython3.8の仮想環境上でyqを扱います。
+便宜上、ターミナルの書式を以下のようにします。
 
 ```
-$ echo "{bar: dummy}" | yq -y > input00.yml
-$ cat input00.yml
-bar: dummy
-$ yq -r '.bar' input00.yml 
-dummy
+(38) $ python --version
+Python 3.8.5
 ```
 
+## 5.yqでyamlを生成
+yamlから値を取り出すことより、yaml形式に出力することのほうがカンタンなので、そちらからやりましょう。
+ここでは出力結果をyqで操作するyamlへリダイレクトします。
+
 ```
-$ echo "{bar: dummy}" | yq -y > input00.yml
-$ cat input00.yml
+(38)$ echo "{bar: dummy}" | yq -y > input00.yml
+(38)$ cat input00.yml
 bar: dummy
-$ yq -r '.bar' input00.yml 
+(38)$ yq -r '.bar' input00.yml 
 dummy
 $ echo "foo: {bar: dummy}" | yq -y > input01.yml
 $ cat input01.yml 
 foo:
   bar: dummy
+```
+
+## 6.yamlからkeyを指定して値を取り出す
+
+- [必須]keyの直前に **`.(コロン)`**をつけること
+  - コロンを付けないとcompile errorになる
+```
+$ yq bar input00.yml 
+jq: error: bar/0 is not defined at <top-level>, line 1:
+bar
+jq: 1 compile error
+```
 
 
-$ cat input01.yml 
-foo: 
-  bar: dummy
+- オプションなし
+  - json形式で出力
+```
+$ yq .bar input00.yml 
+"dummy"
+$ yq .foo input01.yml 
+{
+  "bar": "dummy"
+}
+```
+
+- **`-r`**をつけて
+  - ダブルクオーテーション無し
+  - >  -r output raw strings, not JSON texts;
+    - `yq --help`より
+```
+$ yq -r .bar input00.yml 
+dummy
+```
 $ yq .foo input01.yml 
 {
   "bar": "dummy"
 }
 $ yq .foo.bar input01.yml
 "dummy"
+$ yq -r '.bar' input00.yml 
+dummy
 ```
 
 
