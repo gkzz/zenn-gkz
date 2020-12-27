@@ -45,12 +45,11 @@ yq 2.11.1
 さて、yqコマンドは上述したとおり2種類合って紛らわしいので本記事で扱うyqコマンドについて確認しておきましょう。
 
 - jqのYAML/XMLラッパー
+  - [kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
   - **`jqコマンドのドキュメントを流用できる`**
     - e.g. [jq コマンドを使う日常のご紹介](https://twitter.com/gkzvoice/status/1337681052639227910?s=20)
-[kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
-
 - もうひとつのyqコマンド
-[mikefarah/yq: yq is a portable command-line YAML processor](https://github.com/mikefarah/yq)
+  - [mikefarah/yq: yq is a portable command-line YAML processor](https://github.com/mikefarah/yq)
 
 
 ## 4.yqのインストール
