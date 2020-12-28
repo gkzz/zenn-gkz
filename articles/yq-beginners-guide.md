@@ -2,7 +2,7 @@
 title: "yqコマンド(jq wrapper for YAML)使い方備忘録"
 emoji: "🐕"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [yq,yqml,cli,kubernetes]
+topics: [yq,yaml,cli,kubernetes]
 published: true
 ---
 
