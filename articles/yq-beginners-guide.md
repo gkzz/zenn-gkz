@@ -13,6 +13,7 @@ https://twitter.com/gkzvoice/status/1342856632523362307
 
 
 ## 1.yqコマンドとは
+- [kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
 - Yaml/XMLをgrepみたいに抽出
 - いいかんじに整形もしてくれる
 
