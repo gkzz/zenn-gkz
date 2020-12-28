@@ -6,12 +6,12 @@ topics: [yq,yaml,cli,kubernetes]
 published: true
 ---
 
-## 0.はじめに
+## 0. はじめに
 こんにちは。都内でエンジニアをしている、[@gkzvoice](https://twitter.com/gkzvoice)です。本記事は、jsonをいいかんじに出力したり、加工できるjqコマンドのラッパーのyqコマンドの使い方備忘録です。
 
 https://twitter.com/gkzvoice/status/1342856632523362307
 
-## 1.yqコマンドとは
+## 1. yqコマンドとは
 - [kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
 - YAML/XMLを操作する際に使うjqコマンドのラッパー
 - Yaml/XMLをgrepみたいに抽出
@@ -21,7 +21,7 @@ https://twitter.com/gkzvoice/status/1343523019797368833
 
 なので、数千行のmanifestやplaybookに対してgrepしたり、Gitlab Runner上でmanifestの一部をsedしていたことをyqコマンドでシュッとすることもできます。いいことずくめのyqコマンドなのですが、いざ触ってみたら、以下のような問題点を感じました。
 
-## 2.本記事における問題点の共有
+## 2. 本記事における問題点の共有
 ```
 - yqはjqに比べてドキュメントの絶対数が少ない
 - yqにはjqコマンドのwrapper版とそうではないものの2種類があり、ググる力が問われる
@@ -29,14 +29,14 @@ https://twitter.com/gkzvoice/status/1343523019797368833
 
 そこで、「ググれる」俺得なyqコマンド使い方について調べたことを本記事にまとめていくことにしました。
 
-## 3.環境/バージョン情報
+## 3. 環境/バージョン情報
 ```
 - Python 3.8.5
 - pip 20.3.3 
 - yq 2.11.1
 ```
 
-### 3-1.種類のyqコマンド
+### 3-1. 2種類のyqコマンド
 さて、yqコマンドは上述したとおり2種類合って紛らわしいので本記事で扱うyqコマンドについて確認しておきましょう。
 
 - jqのYAML/XMLラッパー
@@ -47,7 +47,7 @@ https://twitter.com/gkzvoice/status/1343523019797368833
   - [mikefarah/yq: yq is a portable command-line YAML processor](https://github.com/mikefarah/yq)
 
 
-## 4.yqのインストール
+## 4. yqのインストール
 ※pythonの仮想環境ツールのvenv上で検証を進めますが、直接`pip install yq`でも大丈夫です。ご自身の環境に併せてyqをご用意ください。
 
 ```
@@ -66,22 +66,22 @@ $ source 38/bin/activate
 Python 3.8.5
 ```
 
-## 5.yqでyamlを生成
+## 5. yqでyamlを生成
 yamlから値を取り出すことより、yaml形式に出力することのほうがカンタンなので、そちらからやりましょう。ここでは出力結果をyqで操作するyamlへリダイレクトします。
 
 ```
-# 6-1.キホン
+# 6-1. キホン
 (38)$ echo "{bar: dummy}" | yq -y > input00.yml
 (38)$ cat input00.yml
 bar: dummy
 
-# 6-2.2重dictの場合
+# 6-2. 2重dictの場合
 (38) $ echo "foo: {bar: dummy}" | yq -y > input01.yml
 (38) $ cat input01.yml 
 foo:
   bar: dummy
 
-# 6-3.dictのvalueがlistの場合
+# 6-3. dictのvalueがlistの場合
 (38) $ echo "foo: {bar: [dummy0, dummy1]}" | yq -y > input02.yml
 (38) $ cat input02.yml
 foo:
@@ -89,7 +89,7 @@ foo:
     - dummy0
     - dummy1
 
-# 6-4.dictのvalueが複数のdictの場合
+# 6-4. dictのvalueが複数のdictの場合
 (38) $ echo "foo: [{bar: dummy0}, {bar: dummy1}]" | yq -y > input03.yml 
 (38) $ cat input03.yml 
 foo:
@@ -97,8 +97,8 @@ foo:
   - bar: dummy1
 ```
 
-## 6.yamlからkeyを指定してvalueを取得
-### 6-1.キホン
+## 6. yamlからkeyを指定してvalueを取得
+### 6-1. キホン
 - **`[必須]`** keyの直前に **`.(コロン)`** をつけること
   - コロンを付けないとcompile errorになる
 ```
@@ -125,7 +125,7 @@ jq: 1 compile error
 dummy
 ```
 
-### 6-2.2重dictの場合
+### 6-2. 2重dictの場合
 - keyとkeyの間にコロンを挟む
 ```
 (38) $ yq -r '.foo' input01.yml 
@@ -136,7 +136,7 @@ dummy
 "dummy"
 ```
 
-### 6-3.dictのvalueがlistの場合
+### 6-3. dictのvalueがlistの場合
 - dictのvalueが文字列ではなく、リストである場合も変わらず **`.key.key`** でOK
 ```
 (38) $ yq -r '.foo.bar' input02.yml
@@ -157,7 +157,7 @@ dummy0
 (38) $ yq -r '.foo.bar[1]' input02.yml
 dummy1
 ```
-### 6-4.dictのvalueが複数のdictの場合
+### 6-4. dictのvalueが複数のdictの場合
 - foo.barの全てのvalueを取得
   - **`[]`** と何も指定しなくてOK
 ```
@@ -303,8 +303,11 @@ spec:
   }
 ]
 
-## **`yq -r`** でパースした配列の数は、jq '. | length' で取得できます
-(38) $ yq -r '.spec.additionalPrinterColumns' install.master.head30.yaml | jq '. |  length'
+## yq -rでパースした配列の数は、
+## jq '. | length' で取得できます
+## 今回の場合は3つです
+(38) $ yq -r '.spec.additionalPrinterColumns' \
+> install.master.head30.yaml | jq '. |  length'
 3 
 ```
 できましたね。
@@ -313,16 +316,17 @@ spec:
 N番目のdictはどうやって取るのでしょうか？
 **`.spec.additionalPrinterColumns`** に続けて **`.JSONPath`** とkeyを指定してもエラーとなってしまいます。
 ```
-(38) $ yq -r '.spec.additionalPrinterColumns.JSONPath' install.master.head30.yaml
+(38) $ yq -r '.spec.aditionalPrinterColumns.JSONPath' install.master.head30.yaml
 jq: error (at <stdin>:1): Cannot index array with string "JSONPath"
 ```
 
-実は既に **`6-2.dictのvalueが複数のdictである場合`** でやっています。
+実は既に **`6-2. dictのvalueが複数のdictである場合`** でやっています。
 > [N]などと取得したいリストのN番目を指定してから、続けて取得したいvalueのkeyを指定
 
 **`.spec.additionalPrinterColumns`** で複数のdict群を取得できることは分かっています。たとえば、0番目のdictはどうでしょう？
 ```
-$ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
+$ yq -r '.spec.additionalPrinterColumns[0]' \
+> install.master.head30.yaml
 {
   "JSONPath": ".status.sync.status",
   "name": "Sync Status",
@@ -332,13 +336,15 @@ $ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
 ```
 1,2番目も続けて取得してみましょう。
 ```
-(38) $ yq -r '.spec.additionalPrinterColumns[1]' install.master.head30.yaml
+(38) $ yq -r '.spec.additionalPrinterColumns[1]' \
+> install.master.head30.yaml
 {
   "JSONPath": ".status.health.status",
   "name": "Health Status",
   "type": "string"
 }
-(38) $ yq -r '.spec.additionalPrinterColumns[2]' install.master.head30.yaml
+(38) $ yq -r '.spec.additionalPrinterColumns[2]' \
+> install.master.head30.yaml
 {
   "JSONPath": ".status.sync.revision",
   "name": "Revision",
@@ -356,26 +362,30 @@ $ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
 
 ```
 # []と無指定だと、全て取得
-(38) $ yq -r '.spec.additionalPrinterColumns[].JSONPath' install.master.head30.yaml
+(38) $ yq -r '.spec.additionalPrinterColumns[].JSONPath' \
+> install.master.head30.yaml
 .status.sync.status
 .status.health.status
 .status.sync.revision
 
 # [0]は0番目
-(38) $ yq -r '.spec.additionalPrinterColumns[0].JSONPath' install.master.head30.yaml
+(38) $ yq -r '.spec.additionalPrinterColumns[0].JSONPath' \
+> install.master.head30.yaml
 .status.sync.status
 
 # [1]は1番目
-(38) $ yq -r '.spec.additionalPrinterColumns[1].JSONPath' install.master.head30.yaml
+(38) $ yq -r '.spec.additionalPrinterColumns[1].JSONPath' \
+> install.master.head30.yaml
 .status.health.status
 
 # [2]は2番目
-(38) $ yq -r '.spec.additionalPrinterColumns[2].JSONPath' install.master.head30.yaml
+(38) $ yq -r '.spec.additionalPrinterColumns[2].JSONPath' \
+> install.master.head30.yaml
 .status.sync.revision
 ```
 
 ## 7.yamlからvalueを指定して逆引きっぽく使う
-さて、ここまでの書き方は、あらかじめ取得したいvalueの位置を知っている必要があります。これはめんどくさいです。たとえば、JSONPathが **`.status.sync.revision`** であるdictを取得するには、JSONPathのパス（位置）を事前に知っておかなければ、yqで使うことが出来ません。
+さて、ここまでの書き方は、あらかじめ取得したいvalueの位置を知っている必要があります。これはめんどくさいです。たとえば、JSONPathが **`.status.sync.revision`** であるdictを取得するには、JSONPathのパス（位置）を事前に知っておく必要があります。
 
 ```
 # .spec.additionalPrinterColumns[2]と2番目と指定しなければならない
@@ -390,7 +400,8 @@ $ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
 
 結論としては、このような書き方となります。
 ```
-(38) $ yq -r '.spec.additionalPrinterColumns[] | select(.JSONPath==".status.sync.revision")' install.master.head30.yaml 
+(38) $ yq -r '.spec.additionalPrinterColumns[] \
+> | select(.JSONPath==".status.sync.revision")' install.master.head30.yaml 
 {
   "JSONPath": ".status.sync.revision",
   "name": "Revision",
@@ -407,7 +418,8 @@ $ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
 ### 7-1.selectする対象を全指定
 - 解説はすでに **`6-4.dictのvalueが複数のdictの場合`** でしているので割愛します。
 ```
-$  yq -r '.spec.additionalPrinterColumns[]' install.master.head30.yaml 
+$  yq -r '.spec.additionalPrinterColumns[]' \
+> install.master.head30.yaml 
 {
   "JSONPath": ".status.sync.status",
   "name": "Sync Status",
@@ -430,7 +442,9 @@ $  yq -r '.spec.additionalPrinterColumns[]' install.master.head30.yaml
 ### 7-2.select(.key=="value")なboolean
 - 検証用yamlを用意
 ```
-(38) $ yq -ry '.spec.additionalPrinterColumns[] | select(.JSONPath==".status.sync.revision")' install.master.head30.yaml > input04.yml
+(38) $ yq -ry '.spec.additionalPrinterColumns[] \
+> | select(.JSONPath==".status.sync.revision")' \
+> install.master.head30.yaml > input04.yml
 (38) $ cat input04.yml 
 JSONPath: .status.sync.revision
 name: Revision
@@ -440,21 +454,25 @@ type: string
 
 - **`select(.JSONPath==".status.sync.revision") `** がTrueである場合、後続の処理が実行される
 ```
-(38) $ yq -r 'select(.JSONPath==".status.sync.revision") | {"name": .name}' input04.yml 
+(38) $ yq -r 'select(.JSONPath==".status.sync.revision") \
+> | {"name": .name}' input04.yml 
 {
   "name": "Revision"
 }
 ```
 - Falseである場合、後続の処理は実行されない
 ```
-(38) $ yq -r 'select(.JSONPath==".status.sync.hoge") | {"name": .name}' input04.yml
+(38) $ yq -r 'select(.JSONPath==".status.sync.hoge") \
+> | {"name": .name}' input04.yml
 ```
 select(.key=="value")の書き方の解説は、以下を参考にしました。
 - [jqで階層構造になったデータから特定の値を持った、特定の階層のデータを抽出するとき - つれづれ日記](https://diary.sshida.com/20150503-3-jq%E3%81%A7%E9%9A%8E%E5%B1%A4%E6%A7%8B%E9%80%A0%E3%81%AB%E3%81%AA%E3%81%A3%E3%81%9F%E3%83%87%E3%83%BC%E3%82%BF%E3%81%8B%E3%82%89%E7%89%B9%E5%AE%9A%E3%81%AE%E5%80%A4%E3%82%92%E6%8C%81%E3%81%A3%E3%81%9F%E3%80%81%E7%89%B9%E5%AE%9A%E3%81%AE%E9%9A%8E%E5%B1%A4)
 
 もっといいかんじな書き方があるかもしれませんが、ひとまずこんなかんじです。
 ```
-(38) $ yq -r '.spec.additionalPrinterColumns[] | select(.JSONPath==".status.sync.revision")' install.master.head30.yaml 
+(38) $ yq -r '.spec.additionalPrinterColumns[] \
+> | select(.JSONPath==".status.sync.revision")' \
+> install.master.head30.yaml 
 {
   "JSONPath": ".status.sync.revision",
   "name": "Revision",
@@ -465,7 +483,7 @@ select(.key=="value")の書き方の解説は、以下を参考にしました�
 
 ## 8.keyを指定してvalueを書き換える
 jq同様、指定したkeyのvalueを書き換えることが出来ます。
-sedでもできますが、入れ子になっている箇所を書き換えることは難があります。
+sedでもできますが、入れ子になっている箇所を書き換えるとなると難があります。
 
 ```
 $ cat input04.sed.yml 
@@ -483,12 +501,17 @@ type: string
 
 
 ```
-(38) $ yq -ry '.priority|=11' input04.yq.yml > input04.yq2.yml
+# 書き方は'.<key>|=<書き換えるvalue>'
+(38) $ yq -ry '.priority|=11' \
+> input04.yq.yml > input04.yq2.yml
 $ cat input04.yq2.yml 
 JSONPath: .status.sync.revision
 name: Revision
 priority: 11
 type: string
+
+# yqコマンドでは実行結果を書き換え対象ファイルにリダイレクトしないとファイルを書き換えることができないのでご注意ください。
+# sedの場合はリダイレクトすることなく、書き換えることができるので、ハマりました笑。
 (38) $ yq -ry '.priority|=11' input04.yq.yml 
 JSONPath: .status.sync.revision
 name: Revision
