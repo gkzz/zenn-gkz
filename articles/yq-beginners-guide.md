@@ -254,7 +254,8 @@ app.kubernetes.io/part-of: argocd
 
 JSONPathは.spec.additionalPrinterColumnsのひとつのlistのなかの複数のdictのkeyです。
 ```.yaml
-# install.master.head30.yaml
+# install.master.head30.yamlから抜粋
+
 spec:
   additionalPrinterColumns:
   - JSONPath: .status.sync.status                     
@@ -270,12 +271,13 @@ spec:
 ```
 いきなりJSONPathを取ろうとするとたいへんなので、以下の2つに分けて考えましょう。
 
-- **`.spec.additionalPrinterColumns`** という1個のリストを取得
-- 上で取得したリストは複数のdictなので、N番目のdictのJSONPathというkeyを指定してvalueを取得
+- a) **`.spec.additionalPrinterColumns`** という1個のリストを取得
+- b) 上で取得したリストは複数のdictなので、N番目のdictのJSONPathというkeyを指定してvalueを取得
 
 それではやってみましょう。
+
+#### a) **`.spec.additionalPrinterColumns`** という1個のリストを取得
 ```
-# **`.spec.additionalPrinterColumns`** という1個のリストを取得
 (38) $ yq -r '.spec.additionalPrinterColumns' install.master.head30.yaml 
 [
   {
@@ -300,6 +302,9 @@ spec:
 (38) $ yq -r '.spec.additionalPrinterColumns' install.master.head30.yaml | jq '. |  length'
 3 
 ```
+できましたね。
+
+#### b) 上で取得したリストは複数のdictなので、N番目のdictのJSONPathというkeyを指定してvalueを取得
 N番目のdictはどうやって取るのでしょうか？
 **`.spec.additionalPrinterColumns`** に続けて **`.JSONPath`** とkeyを指定してもエラーとなってしまいます。
 ```
@@ -307,7 +312,7 @@ N番目のdictはどうやって取るのでしょうか？
 jq: error (at <stdin>:1): Cannot index array with string "JSONPath"
 ```
 
-実は既に **`6-2.dictのvalueが複数のdictである場合`** でやっているんですよ。
+実は既に **`6-2.dictのvalueが複数のdictである場合`** でやっています。
 > [N]などと取得したいリストのN番目を指定してから、続けて取得したいvalueのkeyを指定
 
 **`.spec.additionalPrinterColumns`** で複数のdict群を取得できることは分かっています。たとえば、0番目のdictはどうでしょう？
@@ -364,7 +369,7 @@ $ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
 .status.sync.revision
 ```
 
-## 6.yamlからvalueを指定した逆引き
+## 7.yamlからvalueを指定した逆引き
 さて、ここまでの書き方は、あらかじめ取得したいvalueの位置を知っている必要があります。これはめんどくさいですよね。たとえば、JSONPathが **`.status.sync.revision`** であるdictを取得するには、JSONPathのパス（位置）を事前に知っておかなければ、yqで使うことが出来ません。
 
 ```
