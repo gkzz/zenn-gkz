@@ -170,7 +170,7 @@ dummy1
 jq: error (at <stdin>:1): Cannot index array with string "bar"
 ```
 
-- fooの0番目のbarをkeyとしたときのvalueを取得した場合
+- fooの0番目のbarをkeyとしたときのvalueを取得したい場合
   - [N]などと取得したいリストのN番目を指定してから、続けて取得したいvalueのkeyを指定
 ```
 (38) $ yq -r '.foo[0].bar' input03.yml
