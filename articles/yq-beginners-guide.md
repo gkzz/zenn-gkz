@@ -21,7 +21,6 @@ https://twitter.com/gkzvoice/status/1342856632523362307
 いいことずくめのyqコマンドなのですが、いざ触ってみたら、以下のような問題点を感じました。
 
 ## 2.本記事における問題点の共有
-
 ```
 - yqはjqに比べてドキュメントの絶対数が少ない
 - yqはjqのラッパーなのだからjqのオプションを叩いても微妙に違う気がする
@@ -31,12 +30,12 @@ https://twitter.com/gkzvoice/status/1342856632523362307
 そこで、「ググれる」俺得なyqコマンド使い方について調べたことを本記事にまとめていくことにしました。
 
 ## 3.環境/バージョン情報
-
 ```
 - Python 3.8.5
 - $ pip 20.3.3 
 - yq 2.11.1
 ```
+
 ### 3-1.種類のyqコマンド
 さて、yqコマンドは上述したとおり2種類合って紛らわしいので本記事で扱うyqコマンドについて確認しておきましょう。
 
@@ -103,7 +102,6 @@ foo:
 
 ## 6.yamlからkeyを指定してvalueを取得
 ### 6-1.キホン
-
 - **`[必須]`** keyの直前に **`.(コロン)`** をつけること
   - コロンを付けないとcompile errorになる
 ```
@@ -164,11 +162,17 @@ dummy1
 ```
 ### 6-4.dictのvalueが複数のdictの場合
 - foo.barの全てのvalueを取得
-  - **``**と[]と何も指定しなくてOK
+  - **`[]`** と何も指定しなくてOK
 ```
 (38) $ yq -r '.foo[].bar' input03.yml
 dummy0
 dummy1
+```
+
+- **`[]`** をつけないとエラー
+```
+(38) $ yq -r '.foo.bar' input03.yml
+jq: error (at <stdin>:1): Cannot index array with string "bar"
 ```
 
 - fooの0番目のbarをkeyとしたときのvalueを取得した場合
@@ -183,7 +187,6 @@ dummy0
 (38) $ yq -r '.foo[1].bar' input03.yml
 dummy1
 ```
-
 
 ### 6-5. ここまでのおさらいとして長めのyamlでやってみる
 たとえば、Argo CDをインストールする際に使うmanifestを例に挙げましょう。
@@ -231,7 +234,6 @@ spec:
 ```
 
 ### 6-5-1. **`.metadata.labels`** を指定
-
 ```
 (38) $ yq -r '.metadata.labels' install.master.head30.yaml 
 {
