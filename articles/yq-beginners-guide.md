@@ -171,11 +171,13 @@ foo:
 dummy0
 dummy1
 ```
+
 - fooの0番目のbarをkeyとしたときのvalueを取得した場合
 ```
 (38) $ yq -r '.foo[0].bar' input03.yml
 dummy0
 ```
+
 - fooの1番目のbarをkeyとしたときのvalueを取得した場合
 ```
 (38) $ yq -r '.foo[1].bar' input03.yml
@@ -186,6 +188,7 @@ dummy1
 ### 6-3. ここまでのおさらいとして長めのyamlでやってみる
 たとえば、Argo CDをインストールする際に使うmanifestを例に挙げましょう。
 ここではmanifestの上部30行を扱ってみます。
+
 ```
 (38) $ u=https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml \
 > && curl $u -o install.master.yaml
@@ -200,19 +203,19 @@ apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
   labels:
-    app.kubernetes.io/name: applications.argoproj.io　### 6-3-1-1
-    app.kubernetes.io/part-of: argocd                 ### 6-3-1-2
+    app.kubernetes.io/name: applications.argoproj.io　### 6-3-1
+    app.kubernetes.io/part-of: argocd                 ### 6-3-1
   name: applications.argoproj.io
 spec:
   additionalPrinterColumns:
   - JSONPath: .status.sync.status                     
-    name: Sync Status                                 ### 6-3-2-1
+    name: Sync Status                                 ### 6-3-2
     type: string                                      
   - JSONPath: .status.health.status                   
-    name: Health Status                               ### 6-3-2-2
+    name: Health Status                               ### 6-3-2
     type: string                                      
   - JSONPath: .status.sync.revision                   
-    name: Revision                                    ### 6-3-2-3
+    name: Revision                                    ### 6-3-2
     priority: 10
     type: string
   group: argoproj.io
@@ -227,8 +230,8 @@ spec:
   scope: Namespaced
 ```
 
-
 ### 6-3-1. **`.metadata.labels`** を指定
+
 ```
 (38) $ yq -r '.metadata.labels' install.master.head30.yaml 
 {
@@ -276,6 +279,7 @@ app.kubernetes.io/part-of: argocd
 (38) $ yq -r '.spec.additionalPrinterColumns' install.master.head30.yaml | jq '. |  length'
 3 
 ```
+
 ココで取得したいnameは、JSONPath, name, typeで構成される複数のdict群のうち、0,1,2番目のいずれかのnameです。
 
 key指定でvalueを取得する方法だけは、膨大な量のmanifestから任意の値を探すみたいなときにパスを指定する際、煩わしいです。
