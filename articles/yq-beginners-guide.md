@@ -31,7 +31,7 @@ https://twitter.com/gkzvoice/status/1342856632523362307
 ## 3.環境/バージョン情報
 ```
 - Python 3.8.5
-- $ pip 20.3.3 
+- pip 20.3.3 
 - yq 2.11.1
 ```
 
