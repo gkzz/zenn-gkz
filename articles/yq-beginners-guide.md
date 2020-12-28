@@ -11,12 +11,13 @@ published: true
 
 https://twitter.com/gkzvoice/status/1342856632523362307
 
-
 ## 1.yqコマンドとは
 - [kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
 - YAML/XMLを操作する際に使うjqコマンドのラッパー
 - Yaml/XMLをgrepみたいに抽出
 - いいかんじに整形もしてくれる
+
+https://twitter.com/gkzvoice/status/1343523019797368833
 
 なので、数千行のmanifestやplaybookに対してgrepしたり、Gitlab Runner上でmanifestの一部をsedしていたことをyqコマンドでシュッとすることもできます。いいことずくめのyqコマンドなのですが、いざ触ってみたら、以下のような問題点を感じました。
 
