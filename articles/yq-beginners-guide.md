@@ -3,7 +3,7 @@ title: "yqコマンド(jq wrapper for YAML)使い方備忘録"
 emoji: "🐕"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [yq,yqml,cli,kubernetes]
-published: false
+published: true
 ---
 
 ## 0.はじめに
@@ -402,9 +402,7 @@ $ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
 
 
 ### 7-1.selectする対象を全指定
-- 説明はすでに書いているので割愛
-  - > 6-4.dictのvalueが複数のdictの場合
-
+- 解説はすでに **`6-4.dictのvalueが複数のdictの場合`** でしているので割愛します。
 ```
 $  yq -r '.spec.additionalPrinterColumns[]' install.master.head30.yaml 
 {
@@ -503,7 +501,8 @@ type: string
 
 
 個人的にはyqのほうがsedより可読性が高いのではないか？と思います。書き換える対象が任意のvalueであれば、yqでできないか検討してみてはいかがでしょうか。
-
+yqコマンド(jq wrapper for YAML)使い方備忘録は以上です。
+最後に、本記事を書くにあたって参考にした記事をご紹介します。
 
 ## 参考
 - [kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
