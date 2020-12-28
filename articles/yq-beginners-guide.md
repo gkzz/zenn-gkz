@@ -7,8 +7,7 @@ published: false
 ---
 
 ## 0.はじめに
-こんにちは。都内でエンジニアをしている、[@gkzvoice](https://twitter.com/gkzvoice)です。
-本記事は、jsonをいいかんじに出力したり、加工できるjqコマンドのラッパーのyqコマンドの使い方備忘録です。
+こんにちは。都内でエンジニアをしている、[@gkzvoice](https://twitter.com/gkzvoice)です。本記事は、jsonをいいかんじに出力したり、加工できるjqコマンドのラッパーのyqコマンドの使い方備忘録です。
 
 https://twitter.com/gkzvoice/status/1342856632523362307
 
@@ -17,8 +16,7 @@ https://twitter.com/gkzvoice/status/1342856632523362307
 - Yaml/XMLをgrepみたいに抽出
 - いいかんじに整形もしてくれる
 
-なので、数千行のmanifestやplaybookに対してgrepしたり、Gitlab Runner上でmanifestの一部をsedしていたことをyqコマンドでシュッとすることもできます。
-いいことずくめのyqコマンドなのですが、いざ触ってみたら、以下のような問題点を感じました。
+なので、数千行のmanifestやplaybookに対してgrepしたり、Gitlab Runner上でmanifestの一部をsedしていたことをyqコマンドでシュッとすることもできます。いいことずくめのyqコマンドなのですが、いざ触ってみたら、以下のような問題点を感じました。
 
 ## 2.本記事における問題点の共有
 ```
@@ -48,8 +46,7 @@ https://twitter.com/gkzvoice/status/1342856632523362307
 
 
 ## 4.yqのインストール
-※pythonの仮想環境ツールのvenv上で検証を進めますが、直接`pip install yq`でも大丈夫です。
-ご自身の環境に併せてyqをご用意ください。
+※pythonの仮想環境ツールのvenv上で検証を進めますが、直接`pip install yq`でも大丈夫です。ご自身の環境に併せてyqをご用意ください。
 
 ```
 # 仮想環境ツールのvenvを使って38という仮想環境を構築
@@ -60,8 +57,7 @@ $ source 38/bin/activate
 (38) $ pip install yq
 ```
 
-以降、本記事ではpython3.8の仮想環境上でyqを扱います。
-便宜上、仮想環境上で任意の操作を行った場合は、ターミナルの左端に仮想環境名を併記します。
+以降、本記事ではpython3.8の仮想環境上でyqを扱います。便宜上、仮想環境上で任意の操作を行った場合は、ターミナルの左端に仮想環境名を併記します。
 
 ```
 (38) $ python --version
@@ -69,8 +65,7 @@ Python 3.8.5
 ```
 
 ## 5.yqでyamlを生成
-yamlから値を取り出すことより、yaml形式に出力することのほうがカンタンなので、そちらからやりましょう。
-ここでは出力結果をyqで操作するyamlへリダイレクトします。
+yamlから値を取り出すことより、yaml形式に出力することのほうがカンタンなので、そちらからやりましょう。ここでは出力結果をyqで操作するyamlへリダイレクトします。
 
 ```
 # 6-1.キホン
@@ -191,7 +186,7 @@ dummy1
 ### 6-5. ここまでのおさらいとして長めのyamlでやってみる
 たとえば、Argo CDをインストールする際に使うmanifestを例に挙げましょう。
 - https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml
-ここではmanifestの上部30行を扱ってみます。
+ここではmanifestの上部30行を扱います。
 
 ```
 (38) $ u=https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml \
@@ -234,7 +229,7 @@ spec:
   scope: Namespaced
 ```
 
-### 6-5-1. **`.metadata.labels`** を指定
+### 6-5-1. 入れ子構造のdictに対して.key.keyで取得
 ```
 (38) $ yq -r '.metadata.labels' install.master.head30.yaml 
 {
@@ -248,12 +243,35 @@ app.kubernetes.io/name: applications.argoproj.io
 app.kubernetes.io/part-of: argocd
 ```
 
-### 6-5-2. **`.spec.additionalPrinterColumns`** をのN番目のdictのJSONPathをkeyを指定して取得
-ココで取得したいnameとは、JSONPath, name, typeで構成される複数のdict群のうち、0,1,2番目のいずれかのnameです。
-問題をカンタンにするために、以下の2つに分割します。
+### 6-5-2. めんどくさい場所にあるdictのvalueをkey指定で取得
+たとえば、以下のJSONPathというkeyを指定して、そのvalueを取得するにはどうすればよいでしょうか？
+```
+(38) $ grep JSONPath install.master.head30.yaml 
+  - JSONPath: .status.sync.status
+  - JSONPath: .status.health.status
+  - JSONPath: .status.sync.revision
+```
+
+JSONPathは.spec.additionalPrinterColumnsのひとつのlistのなかの複数のdictのkeyです。
+```.yaml
+# install.master.head30.yaml
+spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.sync.status                     
+    name: Sync Status                                 ### 6-5-2
+    type: string                                      
+  - JSONPath: .status.health.status                   
+    name: Health Status                               ### 6-5-2
+    type: string                                      
+  - JSONPath: .status.sync.revision                   
+    name: Revision                                    ### 6-5-2
+    priority: 10
+    type: string
+```
+いきなりJSONPathを取ろうとするとたいへんなので、以下の2つに分けて考えましょう。
 
 - **`.spec.additionalPrinterColumns`** という1個のリストを取得
-- 上で取得したリストは複数のdictなので、N番目のdictのnameというkeyを指定してvalueを取得
+- 上で取得したリストは複数のdictなので、N番目のdictのJSONPathというkeyを指定してvalueを取得
 
 それではやってみましょう。
 ```
@@ -282,11 +300,17 @@ app.kubernetes.io/part-of: argocd
 (38) $ yq -r '.spec.additionalPrinterColumns' install.master.head30.yaml | jq '. |  length'
 3 
 ```
-N番目のdictとはどうやって取るのでしょうか？
+N番目のdictはどうやって取るのでしょうか？
+**`.spec.additionalPrinterColumns`** に続けて **`.JSONPath`** とkeyを指定してもエラーとなってしまいます。
+```
+(38) $ yq -r '.spec.additionalPrinterColumns.JSONPath' install.master.head30.yaml
+jq: error (at <stdin>:1): Cannot index array with string "JSONPath"
+```
+
 実は既に **`6-2.dictのvalueが複数のdictである場合`** でやっているんですよ。
 > [N]などと取得したいリストのN番目を指定してから、続けて取得したいvalueのkeyを指定
-**`.spec.additionalPrinterColumns`** で複数のdict群を取得できることは分かっています。
-たとえば、0番目のdictはどうでしょう？
+
+**`.spec.additionalPrinterColumns`** で複数のdict群を取得できることは分かっています。たとえば、0番目のdictはどうでしょう？
 ```
 $ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
 {
@@ -312,7 +336,60 @@ $ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
   "type": "string"
 }
 ```
+そうなんです。dictのvalueがlistなので、yqで指定するパスをこのようにN番目のdictと指定する必要があります。
+```
+- .spec.additionalPrinterColumns.JSONPath
++ .spec.additionalPrinterColumns[0].JSONPath
+```
 
-ココで取得したいnameは、JSONPath, name, typeで構成される複数のdict群のうち、0,1,2番目のいずれかのnameです。
+よって、JSONPathの場合はこのようになります。
+
+```
+# []と無指定だと、全て取得
+(38) $ yq -r '.spec.additionalPrinterColumns[].JSONPath' install.master.head30.yaml
+.status.sync.status
+.status.health.status
+.status.sync.revision
+
+# [0]は0番目
+(38) $ yq -r '.spec.additionalPrinterColumns[0].JSONPath' install.master.head30.yaml
+.status.sync.status
+
+# [1]は1番目
+(38) $ yq -r '.spec.additionalPrinterColumns[1].JSONPath' install.master.head30.yaml
+.status.health.status
+
+# [2]は2番目
+(38) $ yq -r '.spec.additionalPrinterColumns[2].JSONPath' install.master.head30.yaml
+.status.sync.revision
+```
+
+## 6.yamlからvalueを指定した逆引き
+さて、ここまでの書き方は、あらかじめ取得したいvalueの位置を知っている必要があります。これはめんどくさいですよね。たとえば、JSONPathが **`.status.sync.revision`** であるdictを取得するには、JSONPathのパス（位置）を事前に知っておかなければ、yqで使うことが出来ません。
+
+```
+# .spec.additionalPrinterColumns[2]と2番目と指定しなければならない
+(38) $ yq -r '.spec.additionalPrinterColumns[2].JSONPath' install.master.head30.yaml
+.status.sync.revision
+```
+
+**`取得したいvalueは分かっているけど、それがどこにあるのか分からない。`**
+そういう場合、どうやってyqを使うのか。いくつか方法はあると思いますが、ここでは select(boolean)を使った方法をご紹介します。
+
+結論としては、このような書き方となります。
+```
+(38) $ yq -r '.spec.additionalPrinterColumns[] | select(.JSONPath==".status.sync.revision")' install.master.head30.yaml 
+{
+  "JSONPath": ".status.sync.revision",
+  "name": "Revision",
+  "priority": 10,
+  "type": "string"
+}
+```
+
+
+- **`.spec.additionalPrinterColumns[2].JSONPath`**と複数の配列から[N]番目と指定するのではなく、N番目のvalueを指定して該当箇所を取得する
+
+これまでに扱った
 
 key指定でvalueを取得する方法だけは、膨大な量のmanifestから任意の値を探すみたいなときにパスを指定する際、煩わしいです。
