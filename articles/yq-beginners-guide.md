@@ -190,6 +190,7 @@ dummy1
 
 ### 6-5. ここまでのおさらいとして長めのyamlでやってみる
 たとえば、Argo CDをインストールする際に使うmanifestを例に挙げましょう。
+- https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml
 ここではmanifestの上部30行を扱ってみます。
 
 ```
