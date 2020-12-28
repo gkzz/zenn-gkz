@@ -194,6 +194,8 @@ dummy1
 ```
 (38) $ u=https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml \
 > && curl $u -o install.master.yaml
+
+# 今回扱うArgo CDのmanifestの行数は2700超でした。。
 (38) $ cat install.master.yaml | wc -l
 2718
 (38) $ head -n 30 install.master.yaml > install.master.head30.yaml
