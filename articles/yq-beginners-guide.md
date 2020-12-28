@@ -187,6 +187,7 @@ dummy1
 ### 6-5. ここまでのおさらいとして長めのyamlでやってみる
 たとえば、Argo CDをインストールする際に使うmanifestを例に挙げましょう。
 - https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml
+
 ここではmanifestの上部30行を扱います。
 
 ```
@@ -370,8 +371,8 @@ $ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
 .status.sync.revision
 ```
 
-## 7.yamlからvalueを指定した逆引き
-さて、ここまでの書き方は、あらかじめ取得したいvalueの位置を知っている必要があります。これはめんどくさいですよね。たとえば、JSONPathが **`.status.sync.revision`** であるdictを取得するには、JSONPathのパス（位置）を事前に知っておかなければ、yqで使うことが出来ません。
+## 7.yamlからvalueを指定して逆引きっぽく使う
+さて、ここまでの書き方は、あらかじめ取得したいvalueの位置を知っている必要があります。これはめんどくさいです。たとえば、JSONPathが **`.status.sync.revision`** であるdictを取得するには、JSONPathのパス（位置）を事前に知っておかなければ、yqで使うことが出来ません。
 
 ```
 # .spec.additionalPrinterColumns[2]と2番目と指定しなければならない
@@ -380,7 +381,9 @@ $ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
 ```
 
 **`取得したいvalueは分かっているけど、それがどこにあるのか分からない。`**
-そういう場合、どうやってyqを使うのか。いくつか方法はあると思いますが、ここでは select(boolean)を使った方法をご紹介します。
+こういう場合、yqではどういった書き方をすればよいでしょうか。いくつか方法はあると思いますが、ここでは select(boolean)を使った方法をご紹介します。
+
+先にお伝えすると、valueを指定してkeyで引っ張るといった逆引きのような書き方です。スマートな逆引きではないです。対象箇所を抽出した後、任意のvalueであるかどうか条件判定をするといった書き方です。
 
 結論としては、このような書き方となります。
 ```
@@ -392,10 +395,120 @@ $ yq -r '.spec.additionalPrinterColumns[0]' install.master.head30.yaml
   "type": "string"
 }
 ```
+ポイントは以下の2点です。
+
+- 7-1.selectする対象を全指定
+- 7-2.select(.key=="value")なboolean
 
 
-- **`.spec.additionalPrinterColumns[2].JSONPath`**と複数の配列から[N]番目と指定するのではなく、N番目のvalueを指定して該当箇所を取得する
+### 7-1.selectする対象を全指定
+- 説明はすでに書いているので割愛
+  - > 6-4.dictのvalueが複数のdictの場合
 
-これまでに扱った
+```
+$  yq -r '.spec.additionalPrinterColumns[]' install.master.head30.yaml 
+{
+  "JSONPath": ".status.sync.status",
+  "name": "Sync Status",
+  "type": "string"
+}
+{
+  "JSONPath": ".status.health.status",
+  "name": "Health Status",
+  "type": "string"
+}
+{
+  "JSONPath": ".status.sync.revision",
+  "name": "Revision",
+  "priority": 10,
+  "type": "string"
+}
+```
+このように対象範囲をごっそり取った後、後述する条件判定文で使うので、スマートな方法ではないと思います。
 
-key指定でvalueを取得する方法だけは、膨大な量のmanifestから任意の値を探すみたいなときにパスを指定する際、煩わしいです。
+### 7-2.select(.key=="value")なboolean
+- 検証用yamlを用意
+```
+(38) $ yq -ry '.spec.additionalPrinterColumns[] | select(.JSONPath==".status.sync.revision")' install.master.head30.yaml > input04.yml
+(38) $ cat input04.yml 
+JSONPath: .status.sync.revision
+name: Revision
+priority: 10
+type: string
+```
+
+- **`select(.JSONPath==".status.sync.revision") `** がTrueである場合、後続の処理が実行される
+```
+(38) $ yq -r 'select(.JSONPath==".status.sync.revision") | {"name": .name}' input04.yml 
+{
+  "name": "Revision"
+}
+```
+- Falseである場合、後続の処理は実行されない
+```
+(38) $ yq -r 'select(.JSONPath==".status.sync.hoge") | {"name": .name}' input04.yml
+```
+select(.key=="value")の書き方の解説は、以下を参考にしました。
+- [jqで階層構造になったデータから特定の値を持った、特定の階層のデータを抽出するとき - つれづれ日記](https://diary.sshida.com/20150503-3-jq%E3%81%A7%E9%9A%8E%E5%B1%A4%E6%A7%8B%E9%80%A0%E3%81%AB%E3%81%AA%E3%81%A3%E3%81%9F%E3%83%87%E3%83%BC%E3%82%BF%E3%81%8B%E3%82%89%E7%89%B9%E5%AE%9A%E3%81%AE%E5%80%A4%E3%82%92%E6%8C%81%E3%81%A3%E3%81%9F%E3%80%81%E7%89%B9%E5%AE%9A%E3%81%AE%E9%9A%8E%E5%B1%A4)
+
+もっといいかんじな書き方があるかもしれませんが、ひとまずこんなかんじです。
+```
+(38) $ yq -r '.spec.additionalPrinterColumns[] | select(.JSONPath==".status.sync.revision")' install.master.head30.yaml 
+{
+  "JSONPath": ".status.sync.revision",
+  "name": "Revision",
+  "priority": 10,
+  "type": "string"
+}
+```
+
+## 8.keyを指定してvalueを書き換える
+jq同様、指定したkeyのvalueを書き換えることが出来ます。
+sedでもできますが、入れ子になっている箇所を書き換えることは難があります。
+
+```
+$ cat input04.sed.yml 
+JSONPath: .status.sync.revision
+name: Revision
+priority: 10
+type: string
+(38) $ sed -i -e 's|priority: 10|priority: 11|' input04.sed.yml 
+(38) $ cat input04.sed.yml 
+JSONPath: .status.sync.revision
+name: Revision
+priority: 11
+type: string
+```
+
+
+```
+(38) $ yq -ry '.priority|=11' input04.yq.yml > input04.yq2.yml
+$ cat input04.yq2.yml 
+JSONPath: .status.sync.revision
+name: Revision
+priority: 11
+type: string
+(38) $ yq -ry '.priority|=11' input04.yq.yml 
+JSONPath: .status.sync.revision
+name: Revision
+priority: 11
+type: string
+
+(38) $ cat input04.yq.yml 
+JSONPath: .status.sync.revision
+name: Revision
+priority: 10
+type: string
+```
+
+
+個人的にはyqのほうがsedより可読性が高いのではないか？と思います。書き換える対象が任意のvalueであれば、yqでできないか検討してみてはいかがでしょうか。
+
+
+## 参考
+- [kislyuk/yq: Command-line YAML and XML processor - jq wrapper for YAML/XML documents](https://github.com/kislyuk/yq)
+- [jqで階層構造になったデータから特定の値を持った、特定の階層のデータを抽出するとき - つれづれ日記](https://diary.sshida.com/20150503-3-jq%E3%81%A7%E9%9A%8E%E5%B1%A4%E6%A7%8B%E9%80%A0%E3%81%AB%E3%81%AA%E3%81%A3%E3%81%9F%E3%83%87%E3%83%BC%E3%82%BF%E3%81%8B%E3%82%89%E7%89%B9%E5%AE%9A%E3%81%AE%E5%80%A4%E3%82%92%E6%8C%81%E3%81%A3%E3%81%9F%E3%80%81%E7%89%B9%E5%AE%9A%E3%81%AE%E9%9A%8E%E5%B1%A4)
+- [jqで特定の値を書き換える - notebook](https://swfz.hatenablog.com/entry/2019/04/21/234818)
+
+## P.S. Twitterもやってるのでフォローしていただけると泣いて喜びます:)
+[@gkzvoice](https://twitter.com/gkzvoice)
