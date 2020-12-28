@@ -165,22 +165,117 @@ foo:
   - bar: dummy0
   - bar: dummy1
 ```
-- gggggg
+- foo.barの全てのvalueを取得
 ```
 (38) $ yq -r '.foo[].bar' input03.yml
 dummy0
-```
-- ada
-```
 dummy1
+```
+- fooの0番目のbarをkeyとしたときのvalueを取得した場合
+```
 (38) $ yq -r '.foo[0].bar' input03.yml
 dummy0
+```
+- fooの1番目のbarをkeyとしたときのvalueを取得した場合
+```
 (38) $ yq -r '.foo[1].bar' input03.yml
 dummy1
 ```
 
 
+### 6-3. ここまでのおさらいとして長めのyamlでやってみる
+たとえば、Argo CDをインストールする際に使うmanifestを例に挙げましょう。
+ここではmanifestの上部30行を扱ってみます。
 ```
-$ u=https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml && curl $u -o install.master.yaml
+(38) $ u=https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/install.yaml \
+> && curl $u -o install.master.yaml
+(38) $ cat install.master.yaml | wc -l
+2718
+(38) $ head -n 30 install.master.yaml > install.master.head30.yaml
+
+# "### 6-3-{数字}"としたところをyqでおもむろに取得していきます。
+(38)  cat install.master.head30.yaml 
+# This is an auto-generated file. DO NOT EDIT
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  labels:
+    app.kubernetes.io/name: applications.argoproj.io　### 6-3-1-1
+    app.kubernetes.io/part-of: argocd                 ### 6-3-1-2
+  name: applications.argoproj.io
+spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.sync.status                     
+    name: Sync Status                                 ### 6-3-2-1
+    type: string                                      
+  - JSONPath: .status.health.status                   
+    name: Health Status                               ### 6-3-2-2
+    type: string                                      
+  - JSONPath: .status.sync.revision                   
+    name: Revision                                    ### 6-3-2-3
+    priority: 10
+    type: string
+  group: argoproj.io
+  names:
+    kind: Application
+    listKind: ApplicationList
+    plural: applications
+    shortNames:
+    - app
+    - apps
+    singular: application
+  scope: Namespaced
 ```
 
+
+### 6-3-1. **`.metadata.labels`** を指定
+```
+(38) $ yq -r '.metadata.labels' install.master.head30.yaml 
+{
+  "app.kubernetes.io/name": "applications.argoproj.io",
+  "app.kubernetes.io/part-of": "argocd"
+}
+
+# オプションに-yもつけるとyamlフォーマットで出力される
+(38) $ yq -ry '.metadata.labels' install.master.head30.yaml 
+app.kubernetes.io/name: applications.argoproj.io
+app.kubernetes.io/part-of: argocd
+```
+
+### 6-3-2. **`.spec.additionalPrinterColumns`** をのN番目のdictのnameをkeyを取得
+ココで取得したいnameとは、JSONPath, name, typeで構成される複数のdict群のうち、0,1,2番目のいずれかのnameです。
+問題をカンタンにするために、以下の2つに分割します。
+
+- **`.spec.additionalPrinterColumns`** という1個のリストを取得
+- 上で取得したリストは複数のdictなので、N番目のdictのnameというkeyを指定してvalueを取得
+
+それではやってみましょう。
+```
+# **`.spec.additionalPrinterColumns`** という1個のリストを取得
+(38) $ yq -r '.spec.additionalPrinterColumns' install.master.head30.yaml 
+[
+  {
+    "JSONPath": ".status.sync.status",
+    "name": "Sync Status",
+    "type": "string"
+  },
+  {
+    "JSONPath": ".status.health.status",
+    "name": "Health Status",
+    "type": "string"
+  },
+  {
+    "JSONPath": ".status.sync.revision",
+    "name": "Revision",
+    "priority": 10,
+    "type": "string"
+  }
+]
+
+## **`yq -r`** でパースした配列の数は、jq '. | length' で取得できます
+(38) $ yq -r '.spec.additionalPrinterColumns' install.master.head30.yaml | jq '. |  length'
+3 
+```
+ココで取得したいnameは、JSONPath, name, typeで構成される複数のdict群のうち、0,1,2番目のいずれかのnameです。
+
+key指定でvalueを取得する方法だけは、膨大な量のmanifestから任意の値を探すみたいなときにパスを指定する際、煩わしいです。
