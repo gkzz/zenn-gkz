@@ -857,6 +857,25 @@ argoproj/argocd:latest
 ```
 無事image名と補足情報も添えてとれました！
 
+
+### select(.image!=null AND .name | match("argo*"))でできなかった理由
+select(.image!=null)とselect(.name | match("argo*"))を **`まとめて`** 判定しているので、select(.image==null)のケースで下記のようなエラーを引いたのかなと。でも、select(.image!=null)の場合もあるはずなのにどうして出力(正常に処理)されないのだろう。原因が分かれば更新します。
+
+```
+(38) $ yq -r '.spec.template.spec.containers[0] | select(.image!=null and .name | match("argo*")) | {"name": .name, "containerPorts": .ports[], "image": .image}' install.master.yaml 
+jq: error (at <stdin>:1): boolean (false) cannot be matched, as it is not a string
+jq: error (at <stdin>:2): boolean (false) cannot be matched, as it is not a string
+jq: error (at <stdin>:3): boolean (false) cannot be matched, as it is not a string
+jq: error (at <stdin>:4): boolean (false) cannot be matched, as it is not a string
+jq: error (at <stdin>:5): boolean (false) cannot be matched, as it is not a string
+jq: error (at <stdin>:6): boolean (false) cannot be matched, as it is not a string
+jq: error (at <stdin>:7): boolean (false) cannot be matched, as it is not a string
+jq: error (at <stdin>:8): boolean (false) cannot be matched, as it is not a string
+jq: error (at <stdin>:9): boolean (false) cannot be matched, as it is not a string
+
+(略)
+```
+
 --- 2020/12/30更新はここまで。---
 
 yqコマンド(jq wrapper for YAML)使い方備忘録は以上です。
