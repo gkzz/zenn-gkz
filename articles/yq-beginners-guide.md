@@ -452,7 +452,7 @@ priority: 10
 type: string
 ```
 
-- **`select(.JSONPath==".status.sync.revision") `** がTRUEである場合、後続の処理が実行される
+- **`select(.JSONPath==".status.sync.revision") `** がTrueである場合、後続の処理が実行される
 ```
 (38) $ yq -r 'select(.JSONPath==".status.sync.revision") \
 > | {"name": .name}' input04.yml 
@@ -689,7 +689,8 @@ argoproj/argocd:latest
 
 - **`.spec.template.spec.containers[0] | select(.image!=null)`**
 ```
-(38) $ yq -r '.spec.template.spec.containers[0] | select(.image!=null)' install.master.yaml 
+(38) $ yq -r '.spec.template.spec.containers[0] \
+> | select(.image!=null)' install.master.yaml 
 {
   "command": [
     "/shared/argocd-util",
@@ -739,7 +740,9 @@ argoproj/argocd:latest
 - select(.image!=null)であれば、**`{"name": .name, "conta      inerPorts": .ports[], "image": .image}`** を出力
 
 ```
-(38) $ yq -r '.spec.template.spec.containers[0] | select(.image!=null) | {"name": .name, "containerPorts": .ports[], "image": .image}' install.master.yaml 
+(38) $ yq -r '.spec.template.spec.containers[0] \
+> | select(.image!=null) \
+> | {"name": .name, "containerPorts": .ports[], "image": .image}' install.master.yaml 
 {
   "name": "dex",
   "containerPorts": {
