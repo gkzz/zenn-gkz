@@ -396,7 +396,7 @@ $ yq -r '.spec.additionalPrinterColumns[0]' \
 **`取得したいvalueは分かっているけど、それがどこにあるのか分からない。`**
 こういう場合、yqではどういった書き方をすればよいでしょうか。いくつか方法はあると思いますが、ここでは select(boolean)を使った方法をご紹介します。
 
-先にお伝えすると、valueを指定してkeyで引っ張るといった逆引きのような書き方です。スマートな逆引きではないです。対象箇所を抽出した後、任意のvalueであるかどうか条件判定をするといった書き方です。
+先にお伝えすると、スマートな逆引きではないです。対象箇所を抽出した後、任意のvalueであるかどうか条件判定をするといった書き方です。
 
 結論としては、このような書き方となります。
 ```
@@ -452,7 +452,7 @@ priority: 10
 type: string
 ```
 
-- **`select(.JSONPath==".status.sync.revision") `** がTrueである場合、後続の処理が実行される
+- **`select(.JSONPath==".status.sync.revision") `** がTRUEである場合、後続の処理が実行される
 ```
 (38) $ yq -r 'select(.JSONPath==".status.sync.revision") \
 > | {"name": .name}' input04.yml 
@@ -527,6 +527,335 @@ type: string
 
 
 個人的にはyqのほうがsedより可読性が高いのではないか？と思います。書き換える対象が任意のvalueであれば、yqでできないか検討してみてはいかがでしょうか。
+
+--- 2020/12/30更新 ---
+
+## おまけ. Argo CDのmanifestからimage名など取ろうと決めてから実際に取れるまでの試行錯誤
+「実際に何かを取ろうと決めてからすぐ取れるものなの？」というご質問をいただきました。回答としては、複雑なyamlだと、言い換えればyqでどうやって指定すればいいかすぐ分からないと難しいとなります。
+
+
+### 気軽にデバッグできるのがいいところ
+yqはsedなどと違い、対象ファイルに対してコマンドを実行しようが、対象ファイルにリダイレクトしないかぎり、コマンドの実行結果が反映されません。
+つまり、気軽に実行結果を確かめながらyqにどうやって取りたい値のkey、オプションを指定するか試行錯誤できるんです。
+
+###  Argo CDのmanifestからimage名など取ろうと決めてから実際に取れるまで
+
+- 該当箇所を確認
+
+※行数はあくまで参考です。
+```.yaml
+
+  2418 spec:
+  2419   selector:
+  2420     matchLabels:
+  2421       app.kubernetes.io/name: argocd-dex-server
+  2422   template:
+  2423     metadata:
+  2424       labels:
+  2425         app.kubernetes.io/name: argocd-dex-server
+  2426     spec:
+  2427       affinity:
+  2428         podAntiAffinity:
+  2429           preferredDuringSchedulingIgnoredDuringExecution:
+  2430           - podAffinityTerm:
+  2431               labelSelector:
+  2432                 matchLabels:
+  2433                   app.kubernetes.io/part-of: argocd
+  2434               topologyKey: kubernetes.io/hostname
+  2435             weight: 5
+  2436       containers:
+  2437       - command:
+  2438         - /shared/argocd-util
+  2439         - rundex
+  2440         image: ghcr.io/dexidp/dex:v2.27.0
+
+```
+
+- **`.spec.template.spec.containers`** でやってみる
+```
+(38) $ yq -r .spec.template.spec.containers install.master.yaml
+jq: error (at <stdin>:1): Cannot iterate over null (null)
+jq: error (at <stdin>:2): Cannot iterate over null (null)
+jq: error (at <stdin>:3): Cannot iterate over null (null)
+
+(略)
+
+jq: error (at <stdin>:30): Cannot iterate over null (null)
+{
+  "command": [
+    "/shared/argocd-util",
+    "rundex"
+  ],
+  "image": "ghcr.io/dexidp/dex:v2.27.0",
+  "imagePullPolicy": "Always",
+  "name": "dex",
+  "ports": [
+    {
+      "containerPort": 5556
+    },
+    {
+      "containerPort": 5557
+    },
+    {
+      "containerPort": 5558
+    }
+  ],
+  "volumeMounts": [
+    {
+      "mountPath": "/shared",
+      "name": "static-files"
+    }
+  ]
+}
+
+(略)
+
+{
+  "command": [
+    "argocd-application-controller",
+    "--status-processors",
+    "20",
+    "--operation-processors",
+    "10"
+  ],
+  "image": "argoproj/argocd:latest",
+  "imagePullPolicy": "Always",
+  "livenessProbe": {
+    "httpGet": {
+      "path": "/healthz",
+      "port": 8082
+    },
+    "initialDelaySeconds": 5,
+    "periodSeconds": 10
+  },
+  "name": "argocd-application-controller",
+  "ports": [
+    {
+      "containerPort": 8082
+    }
+  ],
+  "readinessProbe": {
+    "httpGet": {
+      "path": "/healthz",
+      "port": 8082
+    },
+    "initialDelaySeconds": 5,
+    "periodSeconds": 10
+  }
+}
+```
+なるほど。imageは **`.spec.template.spec.containers`** の0番目のdictなのか。、、、とすると。
+
+- **`.spec.template.spec.containers[0].image`** でいけるかな？
+```
+(38) $ yq -r '.spec.template.spec.containers[0].image' install.master.yaml 
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+ghcr.io/dexidp/dex:v2.27.0
+redis:5.0.10-alpine
+argoproj/argocd:latest
+argoproj/argocd:latest
+argoproj/argocd:latest
+```
+よし。いけた。ただ、nullの場合はとりたくないなあ。ん。imageで取れればnullではなく、image名がとれるな。select(boolean)でいけるか。
+
+- **`.spec.template.spec.containers[0] | select(.image!=null)`**
+```
+(38) $ yq -r '.spec.template.spec.containers[0] | select(.image!=null)' install.master.yaml 
+{
+  "command": [
+    "/shared/argocd-util",
+    "rundex"
+  ],
+  "image": "ghcr.io/dexidp/dex:v2.27.0",
+  "imagePullPolicy": "Always",
+  "name": "dex",
+  "ports": [
+    {
+      "containerPort": 5556
+    },
+    {
+      "containerPort": 5557
+    },
+    {
+      "containerPort": 5558
+    }
+  ],
+  "volumeMounts": [
+    {
+      "mountPath": "/shared",
+      "name": "static-files"
+    }
+  ]
+}
+{
+  "args": [
+    "--save",
+    "",
+    "--appendonly",
+    "no"
+  ],
+  "image": "redis:5.0.10-alpine",
+  "imagePullPolicy": "Always",
+  "name": "redis",
+  "ports": [
+    {
+      "containerPort": 6379
+    }
+  ]
+}
+```
+
+おお。とれたぞ。あとは必要な情報だけ適当に選べば終わり。imageと同じ階層のnameとportsにしておこう。
+
+- select(.image!=null)であれば、**`{"name": .name, "conta      inerPorts": .ports[], "image": .image}`** を出力
+
+```
+(38) $ yq -r '.spec.template.spec.containers[0] | select(.image!=null) | {"name": .name, "containerPorts": .ports[], "image": .image}' install.master.yaml 
+{
+  "name": "dex",
+  "containerPorts": {
+    "containerPort": 5556
+  },
+  "image": "ghcr.io/dexidp/dex:v2.27.0"
+}
+{
+  "name": "dex",
+  "containerPorts": {
+    "containerPort": 5557
+  },
+  "image": "ghcr.io/dexidp/dex:v2.27.0"
+}
+{
+  "name": "dex",
+  "containerPorts": {
+    "containerPort": 5558
+  },
+  "image": "ghcr.io/dexidp/dex:v2.27.0"
+}
+{
+  "name": "redis",
+  "containerPorts": {
+    "containerPort": 6379
+  },
+  "image": "redis:5.0.10-alpine"
+}
+{
+  "name": "argocd-repo-server",
+  "containerPorts": {
+    "containerPort": 8081
+  },
+  "image": "argoproj/argocd:latest"
+}
+{
+  "name": "argocd-repo-server",
+  "containerPorts": {
+    "containerPort": 8084
+  },
+  "image": "argoproj/argocd:latest"
+}
+{
+  "name": "argocd-server",
+  "containerPorts": {
+    "containerPort": 8080
+  },
+  "image": "argoproj/argocd:latest"
+}
+{
+  "name": "argocd-server",
+  "containerPorts": {
+    "containerPort": 8083
+  },
+  "image": "argoproj/argocd:latest"
+}
+{
+  "name": "argocd-application-controller",
+  "containerPorts": {
+    "containerPort": 8082
+  },
+  "image": "argoproj/argocd:latest"
+}
+
+```
+
+あ。nameにargoって入るものだけの場合も用意しておこう。
+
+- **`select(.key | match("<正規表現>")`** で.nameにargoが入っていれば出力する
+
+※select(.image!=null AND .name | match("argo*"))でできなかった。。
+
+```
+(38) $ yq -r '.spec.template.spec.containers[0] \
+> | select(.image!=null) | select(.name | match("argo*")) \
+> | {"name": .name, "containerPorts": .ports[], "image": .image}' install.master.yaml 
+{
+  "name": "argocd-repo-server",
+  "containerPorts": {
+    "containerPort": 8081
+  },
+  "image": "argoproj/argocd:latest"
+}
+{
+  "name": "argocd-repo-server",
+  "containerPorts": {
+    "containerPort": 8084
+  },
+  "image": "argoproj/argocd:latest"
+}
+{
+  "name": "argocd-server",
+  "containerPorts": {
+    "containerPort": 8080
+  },
+  "image": "argoproj/argocd:latest"
+}
+{
+  "name": "argocd-server",
+  "containerPorts": {
+    "containerPort": 8083
+  },
+  "image": "argoproj/argocd:latest"
+}
+{
+  "name": "argocd-application-controller",
+  "containerPorts": {
+    "containerPort": 8082
+  },
+  "image": "argoproj/argocd:latest"
+}
+```
+無事image名と補足情報も添えてとれました！
+
+--- 2020/12/30更新はここまで。---
+
 yqコマンド(jq wrapper for YAML)使い方備忘録は以上です。
 最後に、本記事を書くにあたって参考にした記事をご紹介します。
 
