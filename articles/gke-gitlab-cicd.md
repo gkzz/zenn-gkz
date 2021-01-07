@@ -108,6 +108,10 @@ $ gcloud config set container/cluster hello-cluster
 ※本記事では説明の便宜上、 **`GCPプロジェクトのIDを${PROJECT_ID}`** と記載します。[^2]
 
 ```
+$ gcloud config list project --format="value(core.project)"
+your-gcp-project-id
+$ gcloud config get-value project
+your-gcp-project-id
 $ export PROJECT_ID = your-gcp-project-id
 ```
 
