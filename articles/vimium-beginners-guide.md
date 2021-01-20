@@ -9,7 +9,7 @@ published: false
 ## 0. はじめに
 こんにちは。都内でエンジニアをしている、[@gkzvoice](https://twitter.com/gkzvoice)です。本記事は、Vim的キーバインドでブラウザを操作するVimiumの設定方法の解説記事です。
 
-https://twitter.com/gkzvoice/status/1351682676021817344?s=20
+https://twitter.com/gkzvoice/status/1351682676021817344
 
 
 ## 1. Vimiumとは
