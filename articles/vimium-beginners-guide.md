@@ -23,9 +23,7 @@ Vimのキーバインド
 ↓
 Vimのキーに対する機能の割り当て
 ```
-参考：#JTF2021W_D VimiumではじめるよちよちVimmerライフ / Vimmer beginners start with Vimium
-
-※Speakerdeckに資料をアップロードしましたら、リンクを付与します。
+参考：[#JTF2021W_D VimiumではじめるよちよちVimmerライフ / Vimmer beginners start with Vimium - Speaker Deck](https://speakerdeck.com/gkzz/vimmer-beginners-start-with-vimium)
 
 ## 1. Vimiumとは
 - Vimライクなキーバインドでブラウザを操作できるChrome/Firefoxの拡張機能
