@@ -3,7 +3,7 @@ title: "apt upgradeしたらSkipping acquire of configured fileと言われた"
 emoji: "✨"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [ubuntu,apt]
-published: false
+published: true
 ---
 
 ## 0. はじめに
