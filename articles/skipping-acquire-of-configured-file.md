@@ -62,7 +62,7 @@ deb [arch=amd64] http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main
 ```
 ※テキストファイルがポップアップ画面で表示されて新鮮だったｗ
 
-<img src="https://storage.googleapis.com/zenn-user-upload/f8ri2mgjtfyc0kb0p1q09ag2diu3" style="max-width:75%;">
+<img src="https://gyazo.com/0fee3d0649011b43cca841cbf7747e83" style="max-width:75%;">
 
 ※編集した後、以下のような　WARNINGが表示されたがスルーした。理由は注釈に記載。[^1]
 
