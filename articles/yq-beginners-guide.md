@@ -52,7 +52,7 @@ https://twitter.com/gkzvoice/status/1343523019797368833
 
 ```
 # 仮想環境ツールのvenvを使って38という仮想環境を構築
-$ python3 -m venv 38python3 -m venv 38
+$ python3 -m venv 38
 $ source 38/bin/activate
 # pipをアップグレードしてからyqをインストール
 (38) $ pip install --upgrade pip
