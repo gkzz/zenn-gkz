@@ -71,8 +71,8 @@ yamlから値を取り出すことより、yaml形式に出力することのほ
 
 ```
 # 6-1. キホン
-(38)$ echo "{bar: dummy}" | yq -y > input00.yml
-(38)$ cat input00.yml
+(38) $ echo "{bar: dummy}" | yq -y > input00.yml
+(38) $ cat input00.yml
 bar: dummy
 
 # 6-2. 2重dictの場合
@@ -201,7 +201,7 @@ dummy1
 (38) $ head -n 30 install.master.yaml > install.master.head30.yaml
 
 # "### 6-3-{数字}"としたところをyqでおもむろに取得していきます。
-(38)  cat install.master.head30.yaml 
+(38) $ cat install.master.head30.yaml 
 # This is an auto-generated file. DO NOT EDIT
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -325,7 +325,7 @@ jq: error (at <stdin>:1): Cannot index array with string "JSONPath"
 
 **`.spec.additionalPrinterColumns`** で複数のdict群を取得できることは分かっています。たとえば、0番目のdictはどうでしょう？
 ```
-$ yq -r '.spec.additionalPrinterColumns[0]' \
+(38) $ yq -r '.spec.additionalPrinterColumns[0]' \
 > install.master.head30.yaml
 {
   "JSONPath": ".status.sync.status",
@@ -418,7 +418,7 @@ $ yq -r '.spec.additionalPrinterColumns[0]' \
 ### 7-1.selectする対象を全指定
 - 解説はすでに **`6-4.dictのvalueが複数のdictの場合`** でしているので割愛します。
 ```
-$  yq -r '.spec.additionalPrinterColumns[]' \
+(38) $  yq -r '.spec.additionalPrinterColumns[]' \
 > install.master.head30.yaml 
 {
   "JSONPath": ".status.sync.status",
@@ -486,7 +486,7 @@ jq同様、指定したkeyのvalueを書き換えることが出来ます。
 sedでもできますが、入れ子になっている箇所を書き換えるとなると難があります。
 
 ```
-$ cat input04.sed.yml 
+(38) $ cat input04.sed.yml 
 JSONPath: .status.sync.revision
 name: Revision
 priority: 10
@@ -814,7 +814,7 @@ argoproj/argocd:latest
 
 - **`select(.key | match("<正規表現>")`** で.nameにargoが入っていれば出力する
 
-※select(.image!=null AND .name | match("argo*"))でできなかった。。
+※ select(.image!=null AND .name | match("argo*"))でできなかった。。
 
 ```
 (38) $ yq -r '.spec.template.spec.containers[0] \
