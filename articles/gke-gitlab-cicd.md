@@ -286,7 +286,7 @@ gitlab  https://charts.gitlab.io
 
 ![](https://storage.googleapis.com/zenn-user-upload/cewj5o4000nelrgfwvf1waqv85du =400x)
 
-- **`values.yaml`** は先ほどコピペした **`gitlabUrl`** と **`runnerRegistrationToken`** 以外に2箇所修正する
+- **`values.yaml`** は先ほどコピペした **`gitlabUrl`** と **`runnerRegistrationToken`** 以外に3箇所修正する
 
 :::details values.yaml修正箇所抜粋(行番号付き)
 
@@ -316,14 +316,27 @@ gitlab  https://charts.gitlab.io
 
 (略)
 
-176   ## Specify the tags associated with the runner. Comma-separated list of tags.
-177   ##
-178   ## ref: https://docs.gitlab.com/ce/ci/runners#use-tags-to-limit-the-number-of-jobs-using-the-runner
-179   ##
-180   # tags: ""
-181   tags: "aaa,bbb,ccc,ddd"  #### 4箇所目 ####
+#### 4箇所目 (以下の記事にて解説) ####
+#### 
+143 runners:
+144   config: |
+145     [[runners]]
+146       [runners.kubernetes]
+147         image = "ubuntu:20.04"
+148         privileged = true
+149       [[runners.kubernetes.volumes.empty_dir]]
+150         name = "docker-certs"
+151         mount_path = "/certs/client"
+152         medium = "Memory"
+
+
+185   ## Specify the tags associated with the runner. Comma-separated list of tags.
+186   ##
+187   ## ref: https://docs.gitlab.com/ce/ci/runners/#use-tags-to-limit-the-number-of-jobs-using-the-runner
+188   ##
+189   # tags: ""
+190   tags: "aaa,bbb,ccc,ddd" #### 5箇所目 ####
 ```
-:::
 
 #### ポイントは **`values.yaml`** のtagを記載するところ。
 - 複数のtagを設定する場合、tag同士を **`,(カンマ)`** で区切ること
