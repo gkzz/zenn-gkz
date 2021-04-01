@@ -13,6 +13,12 @@ published: true
 
 https://twitter.com/gkzvoice/status/1351682676021817344
 
+
+### 発表資料と動画
+- [#JTF2021W_D VimiumではじめるよちよちVimmerライフ / Vimmer beginners start with Vimium - Speaker Deck](https://speakerdeck.com/gkzz/vimmer-beginners-start-with-vimium)
+
+- [D3：VimiumではじめるよちよちVimmerライフ - YouTube](https://www.youtube.com/watch?v=kAm46-GFr0w)
+
 もともとスライド用にスクリーンショットを大量に取っていたので、スクリーンショットが多いです。そのため、Chromeの拡張機能の設定が初めてという方でも、本記事を読めばVimiumをすんなり導入できるのではないか？と思います。
 
 ### 「Vimライクなキーバインド」とは？
@@ -121,9 +127,9 @@ Vimiumはカーソルが検索バーなどページ外にいってしまうと�
 
 ![](https://storage.googleapis.com/zenn-user-upload/xfmbifimv8c37rwqyxpua65igsgc)
 
-|Search engine|Keyword|URL with %s in place of query|
-|-------------|-------|-----------------------------|
-|movepage     |j      |javascript:                  |
+|Search engine|Keyword|URL with %s in place of query                                                    |
+|-------------|-------|---------------------------------------------------------------------------------|
+|movepage     |j      |javascript:                                                                      |
 |copyTitle    |t      |javascript:prompt('Title%20+%20URL','['+document.title+']('+location.href+')')();|
 
 
