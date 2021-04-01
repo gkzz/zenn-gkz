@@ -127,17 +127,31 @@ Vimiumはカーソルが検索バーなどページ外にいってしまうと�
 
 ![](https://storage.googleapis.com/zenn-user-upload/xfmbifimv8c37rwqyxpua65igsgc)
 
-|Search engine|Keyword|URL with %s in place of query                                                    |
-|-------------|-------|---------------------------------------------------------------------------------|
-|movepage     |j      |javascript:                                                                      |
-|copyTitle    |t      |javascript:prompt('Title%20+%20URL','['+document.title+']('+location.href+')')();|
+- カーソルをページ内に戻す
+```
+## Search engine(任意)
+movePage
 
+## Keyword(任意)
+j
 
-- カーソルをページ内に戻す(javascript:)
+## URL with %s in place of query
+javascript:
+```
 
 ![](https://storage.googleapis.com/zenn-user-upload/ev4ajgyyj3ryre2peayez3gm006p)
 
-- タイトルとURLをコピー(javascript:prompt('Title%20+%20URL','['+document.title+']('+location.href+')')();)
+- タイトルとURLをコピー
+```
+## Search engine(任意)
+copyTitle
+
+## Keyword(任意)
+t
+
+## URL with %s in place of query
+javascript:prompt('Title%20+%20URL','['+document.title+']('+location.href+')')();
+```
 
 ![](https://storage.googleapis.com/zenn-user-upload/5jppi4il1vjhngmq63r5j4ms0xmj)
 
