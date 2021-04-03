@@ -879,6 +879,17 @@ jq: error (at <stdin>:9): boolean (false) cannot be matched, as it is not a stri
 
 --- 2020/12/30更新はここまで。---
 
+--- 2021/04/03更新 ---
+- yqのイメージを見つけたので貼っておきます。
+  - [linuxserver/yq](https://hub.docker.com/r/linuxserver/yq)
+- docker runコマンドにyqのコマンドを渡すようにするとyqライブラリをインストールすることなくyqコマンドを使うことが出来ました。
+
+```
+$ docker run --rm -v "$PWD:$PWD" -w="$PWD" \
+  --entrypoint yq linuxserver/yq \
+  <yqコマンド>
+```
+
 yqコマンド(jq wrapper for YAML)使い方備忘録は以上です。
 最後に、本記事を書くにあたって参考にした記事をご紹介します。
 
