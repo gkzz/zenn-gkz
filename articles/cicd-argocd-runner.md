@@ -55,7 +55,7 @@ published: false
 - また、ここでの **`CDとは「 継続的デリバリー(Continuous Delivery)」 `** を指します。「 継続的デプロイメント(Continuous Deployment)」ではありません。両者の違いについてはRed Hat社の記事から引用します。
   - > 継続的デリバリーは一般に、開発チームによるアプリケーションへの変更に対してバグがないか自動でテストを行い、変更をリポジトリ (GitHub やコンテナレジストリなど) にアップロードします。 **`ここで、変更が運用チームによって本番環境に導入されます。`**
   - > 継続的デプロイでは、新しいソフトウェアのリリースプロセスを通じてさらにいくつかのステップをカバーします。これには通常、開発者による変更をリポジトリから本番環境に自動的にリリースし、顧客が使用できるようにするプロセスが含まれます。運用チームが担当する手動プロセスが多すぎて、アプリケーションの提供が遅れるという問題に対処します。
-  - 参考：[継続的デリバリーとは][ref-0-1-2]
+  - 参考. [継続的デリバリーとは][ref-0-1-2]
 - 構成図はdraw.ioにて作成しました。アイコンはこちらから拝借しました。
   - [Press kit | GitLab](https://about.gitlab.com/press/press-kit/)
   - [CNCF Branding | Argo](https://cncf-branding.netlify.app/projects/argo/)
@@ -415,7 +415,7 @@ $ docker version
 - 環境変数など、デプロイ環境に応じて値が変わる変数の取り扱いや設定ファイルの指定はだれがおこなうか？
   - 従来はアプリケーションのconfig、dotenvやDockerfileのENVなどだったはずだが、デプロイ環境がKubernetesの場合はどうする？
 - GKEの場合、セキュアな変数を取り扱う際にはSecretを使うことがあるが、これもコード化する？manifestリポジトリのGit管理下に含める？
-  - 参考7-0-0：[Secret を使用してセンシティブ データを保存  |  Config Connector のドキュメント  |  Google Cloud][ref-7-0-0]
+  - 参考. [Secret を使用してセンシティブ データを保存  |  Config Connector のドキュメント  |  Google Cloud][ref-7-0-0]
 
 #### CI/CDパイプラインを設計する際に参考にした資料
 - [マイクロサービスパターン[実践的システムデザインのためのコード解説] (impress top gear) | Chris Richardson, 樽澤広亨, 長尾高弘 |本 | 通販 | Amazon][ref-7-0-1]
