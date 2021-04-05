@@ -51,11 +51,11 @@ published: false
   - DB無し
   - アプリケーションはFastAPIで作成
   - GKE上で動く(GKEは以下の資料を参考に作成)
-  - 参考0-1-1. [Quickstart  |  Kubernetes Engine Documentation  |  Google Cloud][ref-0-1-1]
+  - 参考. [Quickstart  |  Kubernetes Engine Documentation  |  Google Cloud][ref-0-1-1]
 - また、ここでの **`CDとは「 継続的デリバリー(Continuous Delivery)」 `** を指します。「 継続的デプロイメント(Continuous Deployment)」ではありません。両者の違いについてはRed Hat社の記事から引用します。
   - > 継続的デリバリーは一般に、開発チームによるアプリケーションへの変更に対してバグがないか自動でテストを行い、変更をリポジトリ (GitHub やコンテナレジストリなど) にアップロードします。 **`ここで、変更が運用チームによって本番環境に導入されます。`**
   - > 継続的デプロイでは、新しいソフトウェアのリリースプロセスを通じてさらにいくつかのステップをカバーします。これには通常、開発者による変更をリポジトリから本番環境に自動的にリリースし、顧客が使用できるようにするプロセスが含まれます。運用チームが担当する手動プロセスが多すぎて、アプリケーションの提供が遅れるという問題に対処します。
-  - 参考0-1-2：[継続的デリバリーとは][ref-0-1-2]
+  - 参考：[継続的デリバリーとは][ref-0-1-2]
 - 構成図はdraw.ioにて作成しました。アイコンはこちらから拝借しました。
   - [Press kit | GitLab](https://about.gitlab.com/press/press-kit/)
   - [CNCF Branding | Argo](https://cncf-branding.netlify.app/projects/argo/)
@@ -71,7 +71,7 @@ published: false
 GitOpsとは、Weaveworks社が提唱した、CDの方法のひとつです。同社のブログでは、GitOpsについて以下のように書かれています。（記事をGoogle翻訳に書けた結果を引用する。2020/04/04現在。）
 
 - > GitOpsは、Kubernetesクラスター管理とアプリケーション配信を行う方法です。**`これは、宣言型インフラストラクチャとアプリケーションの信頼できる唯一の情報源としてGitを使用する`**  ことで機能します。
-- 出所：[Guide To GitOps][ref-1-0-0]
+- 参考. [Guide To GitOps][ref-1-0-0]
 
 ### 1-1. GitOpsの個人的なメモ
 - GitOpsとは、**`manifestの更新をデプロイ環境に引き込むデリバリー方法`** のこと
@@ -125,11 +125,11 @@ GitOpsが台頭する以前のデリバリー方式が抱えていた課題は�
 - Gitリポジトリサービス: Gitlab
 - CI: Gitlab Runner
   - 設定方法については手前味噌ですがこちらに譲ります。
-  - [Gitlab RunnerをGKE上で実行するまでの設定方法[Google Cloud SDKとHelmら使用]][ref-3-1-1]
+  - 参考. [Gitlab RunnerをGKE上で実行するまでの設定方法[Google Cloud SDKとHelmら使用]][ref-3-1-1]
 - CD(Operator): Argo CD
   - Argo CDの設定については、公式チュートリアルに従って進めました。一部つまずいたところがあったので、スクラップに備忘録として残しました。また、Argo CDとアプリケーションは同じGKEクラスター上にかまえ、GKEクラスターやArgo CD、アプリケーションは全てシングル構成です。
-  - [Getting Started - Argo CD - Declarative GitOps CD for Kubernetes][ref-3-1-2]
-  - [FATA[0000] Argo CD server address unspecified][ref-3-1-3]
+  - 参考. [Getting Started - Argo CD - Declarative GitOps CD for Kubernetes][ref-3-1-2]
+  - 参考. [FATA[0000] Argo CD server address unspecified][ref-3-1-3]
 - アプリケーション: GKE上で動くPythonアプリ(FAST APIで作成)
 - コンテナレジストリサービス: GCR
 
@@ -161,7 +161,7 @@ $ argocd app create hello-python \
 $ argocd cluster add $CLUSTER_NAME
 # これをおこなったあと、デプロイしたいクラスターのMASTER_IPをdest_serverに渡す
 ```
-出所：[Multicluster GitOps with ArgoCD][ref-3-2-1]
+参考. [Multicluster GitOps with ArgoCD][ref-3-2-1]
 
 
 ## 4. サンプルのCI/CDパイプラインを構築するにあたり工夫したこと
@@ -178,7 +178,7 @@ $ argocd cluster add $CLUSTER_NAME
   - dockerコマンドはオプションが似たようなものが多く、可読性が低いことからdockerコマンドはMakefileに寄せ、Runnerはmakeコマンド経由でイメージタグを付与した上でdocker buildするようにしている
 - manifestのイメージタグの書き換えはRunnerがyqコマンドで書き換える
   - yqコマンドの使い方も以前書いた記事があるのでそちらをご参照ください。
-  - [yqコマンド(jq wrapper for YAML)使い方備忘録](https://zenn.dev/gkz/articles/yq-beginners-guide)
+  - 参考. [yqコマンド(jq wrapper for YAML)使い方備忘録][ref-4-1-1]
 
 ```
 - >
@@ -197,10 +197,10 @@ $ argocd cluster add $CLUSTER_NAME
 
 タグの命名規則について考えるにあたり、以下の2点は学びがありました。
 
-- [System Design Interview – An insider's guide, Second Edition | Xu, Alex](https://www.amazon.co.jp/dp/B08CMF2CQF)の「Chapter 7: Design A Unique Id Generator In Distributed Systems」
-- [Snowflake形式のIDを採用した場合の苦労ポイント - yoskhdia’s diary](https://yoskhdia.hatenablog.com/entry/2018/01/05/124633)
+- [System Design Interview – An insider's guide, Second Edition | Xu, Alex][ref-4-2-1]
+- [Snowflake形式のIDを採用した場合の苦労ポイント - yoskhdia’s diary][ref-4-2-2]
 
-とりわけ前者の書籍では複数のサーバー間で採番する難しさとして、このように書かれていたことが印象的です。
+とりわけ前者の書籍では複数のサーバー間で採番する難しさとして、「「Chapter 7: Design A Unique Id Generator In Distributed Systems」でこのように書かれていたことが印象的です。
 > auto_inrements(DBが提供する自動採番)の課題
 > - Hard to scale up with multiple data centers(Only writer is responsible for generating IDs)
 > - IDs do not go up with time across multiple svs
@@ -231,8 +231,8 @@ deploy_dev: ## 5-3
   stage: deploy
   extends: .deploy_dev
 ```
-- 参考5-1-1. [includefile | Keyword reference for the .gitlab-ci.yml file | GitLab](https://docs.gitlab.com/ee/ci/yaml/#includefile)
-- 参考5-1-2. [extends | Keyword reference for the .gitlab-ci.yml file | GitLab](https://docs.gitlab.com/ee/ci/yaml/#extends)
+- 参考5-1-1. [includefile | Keyword reference for the .gitlab-ci.yml file | GitLab][ref-5-1-1]
+- 参考5-1-2. [extends | Keyword reference for the .gitlab-ci.yml file | GitLab][ref-5-1-2]
 
 ### 5-2. アプリケーションコンテナのイメージをbuildするところからGCRにpushするところまでの解説
 ```
@@ -277,11 +277,11 @@ deploy_dev: ## 5-3
 #      - app/htmlcov
       - public
 ```
-- 参考5-2-1. [Use Docker to build Docker images | GitLab](https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#kubernetes) 
-- 参考5-2-2. [gcloud auth activate-service-account  | Cloud SDK Documentation](https://cloud.google.com/sdk/gcloud/reference/auth/activate-service-account)
-- 参考5-2-3. [gcloud auth configure-docker  |  Cloud SDK Documentation  |  Google Cloud](https://cloud.google.com/sdk/gcloud/reference/auth/configure-docker)
-- 参考5-2-4. [pytestのすぐに使えるカバレッジ計測 - Qiita](https://qiita.com/kg1/items/e2fc65e4189faf50bfe6)
-- 参考5-2-5 [Publish code coverage report with GitLab Pages | GitLab](https://about.gitlab.com/blog/2016/11/03/publish-code-coverage-report-with-gitlab-pages/)
+- 参考5-2-1. [Use Docker to build Docker images | GitLab][ref-5-2-1]
+- 参考5-2-2. [gcloud auth activate-service-account  | Cloud SDK Documentation][ref-5-2-2]
+- 参考5-2-3. [gcloud auth configure-docker  |  Cloud SDK Documentation  |  Google Cloud][ref-5-2-3]
+- 参考5-2-4. [pytestのすぐに使えるカバレッジ計測 - Qiita][ref-5-2-4]
+- 参考5-2-5 [Publish code coverage report with GitLab Pages | GitLab][ref-5-2-5]
 
 - カバレッジレポートの一例
 ![](https://storage.googleapis.com/zenn-user-upload/d94fsbo29pcoefghamoumbsv70ki)
@@ -313,8 +313,7 @@ push: ## make push
 pytest: ## make pytest
 	docker exec ${CONTAINER_NAME}-${COMMIT_HASH} /bin/bash -c 'pytest -v --cov=tests --cov-report=html'
 ```
-- 参考5-2-6. [bash - How to use shell commands in Makefile - Stack Overflow](https://stackoverflow.com/questions/10024279/how-to-use-shell-commands-in-makefile)
-
+- 参考5-2-6. [bash - How to use shell commands in Makefile - Stack Overflow][ref-5-2-6]
 
 ###  5-3. manifestのイメージタグを更新し、manifestリポジトリへpushするところまでの解説
 ```
@@ -360,7 +359,6 @@ pytest: ## make pytest
       deployment.yml.tmpl > deployment.yml
  #### MR
  #### 参考5-3-2
- https://dev.to/farnabaz/gitlab-create-merge-requests-from-cli-c36
     - git add deployment.yml
     - 'git commit -m "RUNNER: ${COMMIT_HASH}" deployment.yml'
     - >
@@ -370,11 +368,11 @@ pytest: ## make pytest
       -o merge_request.target=${TARGET_BRANCH}
       origin argocd/${COMMIT_HASH}
 ```
-- 参考5-3-1. [linuxserver/yq](https://hub.docker.com/r/linuxserver/yq)
-- 参考5-3-2. [Gitlab: Create merge requests from cli - DEV Community 👩‍💻👨‍💻](https://dev.to/farnabaz/gitlab-create-merge-requests-from-cli-c36)
+- 参考5-3-1. [linuxserver/yq]:[ref-5-3-1]
+- 参考5-3-2. [Gitlab: Create merge requests from cli - DEV Community 👩‍💻👨‍💻][ref-5-3-2]
 
 ## 6. トラブルシュート
-- [failed to adjust OOM score for shim: invalid argument error -- for docker:dind in Kubernetes · Issue #4837 · containerd/containerd](https://github.com/containerd/containerd/issues/4837#issuecomment-794162761)
+- [failed to adjust OOM score for shim: invalid argument error -- for docker:dind in Kubernetes · Issue #4837 · containerd/containerd][ref-6-0-0]
   - ここで使っているGKE上のRunnerでは、issueのコメントでfixしたとされているubuntu20.04を使用。まもなく今回引いたエラーも解消されるものと考える。
 
 ```
@@ -417,38 +415,41 @@ $ docker version
 - 環境変数など、デプロイ環境に応じて値が変わる変数の取り扱いや設定ファイルの指定はだれがおこなうか？
   - 従来はアプリケーションのconfig、dotenvやDockerfileのENVなどだったはずだが、デプロイ環境がKubernetesの場合はどうする？
 - GKEの場合、セキュアな変数を取り扱う際にはSecretを使うことがあるが、これもコード化する？manifestリポジトリのGit管理下に含める？
-  - 出所：[Secret を使用してセンシティブ データを保存  |  Config Connector のドキュメント  |  Google Cloud](https://cloud.google.com/config-connector/docs/how-to/secrets)
+  - 参考7-0-0：[Secret を使用してセンシティブ データを保存  |  Config Connector のドキュメント  |  Google Cloud][ref-7-0-0]
 
 #### CI/CDパイプラインを設計する際に参考にした資料
-- [マイクロサービスパターン[実践的システムデザインのためのコード解説] (impress top gear) | Chris Richardson, 樽澤広亨, 長尾高弘 |本 | 通販 | Amazon](https://www.amazon.co.jp/dp/4295008583)
+- [マイクロサービスパターン[実践的システムデザインのためのコード解説] (impress top gear) | Chris Richardson, 樽澤広亨, 長尾高弘 |本 | 通販 | Amazon][ref-7-0-1]
   - > オーダーサービスのためのデプロイメントパイプラインの例。パイプラインは一連のステージから構成されている。コミット前テストは、コードをコミットする前に開発者が実行するテストである。その他のステージは、 Jenkins CI サーバーなどの自動化ツールによって実行される（図 9.9）
-- [CircleCIおよびArgoCDを使用したKubernetesCI / CD](https://ichi.pro/circleci-oyobi-argocd-o-shiyoshita-kubernetesci-cd-110448048135194)
-- [Kubernetes anti-patterns: Let's do GitOps, not CIOps!](https://www.weave.works/blog/kubernetes-anti-patterns-let-s-do-gitops-not-ciops)
+- [CircleCIおよびArgoCDを使用したKubernetesCI / CD][ref-7-0-2]
+- [Kubernetes anti-patterns: Let's do GitOps, not CIOps!][ref-7-0-3]
 
-## 8. 記事を書く際、参考にした記事のリンク集
-- [継続的デリバリーとは](https://www.redhat.com/ja/topics/devops/what-is-continuous-delivery)
-- [Guide To GitOps](https://www.weave.works/technologies/gitops/)
-- [Gitlab RunnerをGKE上で実行するまでの設定方法[Google Cloud SDKとHelmら使用]](https://zenn.dev/gkz/articles/gke-gitlab-cicd)
-- [Getting Started - Argo CD - Declarative GitOps CD for Kubernetes](https://argoproj.github.io/argo-cd/getting_started/)
-- [FATA[0000] Argo CD server address unspecified](https://zenn.dev/gkz/scraps/c2b18eaf5ccac3)
-- [Multicluster GitOps with ArgoCD](https://www.infracloud.io/blogs/multicluster-gitops-argocd/)
-- [yqコマンド(jq wrapper for YAML)使い方備忘録](https://zenn.dev/gkz/articles/yq-beginners-guide)
-- [System Design Interview – An insider's guide, Second Edition | Xu, Alex](https://www.amazon.co.jp/dp/B08CMF2CQF)
-- [Snowflake形式のIDを採用した場合の苦労ポイント - yoskhdia’s diary](https://yoskhdia.hatenablog.com/entry/2018/01/05/124633)
-- https://zenn.dev/gkz/scraps/fe827186c5d8bc#comment-5d8009d756861e
-- [includefile | Keyword reference for the .gitlab-ci.yml file | GitLab](https://docs.gitlab.com/ee/ci/yaml/#includefile)
-- [extends | Keyword reference for the .gitlab-ci.yml file | GitLab](https://docs.gitlab.com/ee/ci/yaml/#extends)
-- [Use Docker to build Docker images | GitLab](https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#kubernetes) 
-- [gcloud auth activate-service-account  | Cloud SDK Documentation](https://cloud.google.com/sdk/gcloud/reference/auth/activate-service-account)
-- [gcloud auth configure-docker  |  Cloud SDK Documentation  |  Google Cloud](https://cloud.google.com/sdk/gcloud/reference/auth/configure-docker)
-- [pytestのすぐに使えるカバレッジ計測 - Qiita](https://qiita.com/kg1/items/e2fc65e4189faf50bfe6)
-- [Publish code coverage report with GitLab Pages | GitLab](https://about.gitlab.com/blog/2016/11/03/publish-code-coverage-report-with-gitlab-pages/)
-- [bash - How to use shell commands in Makefile - Stack Overflow](https://stackoverflow.com/questions/10024279/how-to-use-shell-commands-in-makefile)
-- [linuxserver/yq](https://hub.docker.com/r/linuxserver/yq)
-- [Gitlab: Create merge requests from cli - DEV Community 👩‍💻👨‍💻](https://dev.to/farnabaz/gitlab-create-merge-requests-from-cli-c36)
-- [failed to adjust OOM score for shim: invalid argument error -- for docker:dind in Kubernetes · Issue #4837 · containerd/containerd](https://github.com/containerd/containerd/issues/4837#issuecomment-794162761)
-- [マイクロサービスパターン[実践的システムデザインのためのコード解説] (impress top gear) | Chris Richardson, 樽澤広亨, 長尾高弘 |本 | 通販 | Amazon](https://www.amazon.co.jp/dp/4295008583)
-- [Secret を使用してセンシティブ データを保存  |  Config Connector のドキュメント  |  Google Cloud](https://cloud.google.com/config-connector/docs/how-to/secrets)
+## 8. 参考
+- [Quickstart  |  Kubernetes Engine Documentation  |  Google Cloud][ref-0-1-1]
+- [継続的デリバリーとは][ref-0-1-2]
+- [Guide To GitOps][ref-1-0-0]
+- [Gitlab RunnerをGKE上で実行するまでの設定方法[Google Cloud SDKとHelmら使用]][ref-3-1-1]
+- [Getting Started - Argo CD - Declarative GitOps CD for Kubernetes][ref-3-1-2]
+- [FATA[0000] Argo CD server address unspecified][ref-3-1-3]
+- [Multicluster GitOps with ArgoCD][ref-3-2-1]
+- [yqコマンド(jq wrapper for YAML)使い方備忘録][ref-4-1-1]
+- - [System Design Interview – An insider's guide, Second Edition | Xu, Alex][ref-4-2-1][ref-4-2-1]
+- [Snowflake形式のIDを採用した場合の苦労ポイント - yoskhdia’s diary][ref-4-2-2]
+- [includefile | Keyword reference for the .gitlab-ci.yml file | GitLab][ref-5-1-1]
+- [extends | Keyword reference for the .gitlab-ci.yml file | GitLab][ref-5-1-2]
+- [Use Docker to build Docker images | GitLab][ref-5-2-1] 
+- [gcloud auth activate-service-account  | Cloud SDK Documentation][ref-5-2-2]
+- [gcloud auth configure-docker  |  Cloud SDK Documentation  |  Google Cloud][ref-5-2-3]
+- [pytestのすぐに使えるカバレッジ計測 - Qiita][ref-5-2-4]
+- [Publish code coverage report with GitLab Pages | GitLab][ref-5-2-5]
+- [bash - How to use shell commands in Makefile - Stack Overflow][ref-5-2-6]
+- [linuxserver/yq][ref-5-3-1]
+- [Gitlab: Create merge requests from cli - DEV Community 👩‍💻👨‍💻][ref-5-3-2]
+- [failed to adjust OOM score for shim: invalid argument error -- for docker:dind in Kubernetes · Issue #4837 · containerd/containerd][ref-6-0-0]
+- [Secret を使用してセンシティブ データを保存  |  Config Connector のドキュメント  |  Google Cloud][ref-7-0-0]
+- [マイクロサービスパターン[実践的システムデザインのためのコード解説] (impress top gear) | Chris Richardson, 樽澤広亨, 長尾高弘 |本 | 通販 | Amazon][ref-7-0-1]
+- [CircleCIおよびArgoCDを使用したKubernetesCI / CD][ref-7-0-2]
+- [Kubernetes anti-patterns: Let's do GitOps, not CIOps!][ref-7-0-3]
+
 
 [ref-0-1-1]:https://cloud.google.com/kubernetes-engine/docs/quickstart
 [ref-0-1-2]:https://www.redhat.com/ja/topics/devops/what-is-continuous-delivery
@@ -457,3 +458,21 @@ $ docker version
 [ref-3-1-2]:https://argoproj.github.io/argo-cd/getting_started/
 [ref-3-1-3]:https://zenn.dev/gkz/scraps/c2b18eaf5ccac3
 [ref-3-2-1]:https://www.infracloud.io/blogs/multicluster-gitops-argocd/
+[ref-4-1-1]:https://zenn.dev/gkz/articles/yq-beginners-guide
+[ref-4-2-1]:https://www.amazon.co.jp/dp/B08CMF2CQF
+[ref-4-2-2]:https://yoskhdia.hatenablog.com/entry/2018/01/05/124633
+[ref-5-1-1]:https://docs.gitlab.com/ee/ci/yaml/#includefile
+[ref-5-1-2]:https://docs.gitlab.com/ee/ci/yaml/#extends
+[ref-5-2-1]:https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#kubernetes
+[ref-5-2-2]:https://cloud.google.com/sdk/gcloud/reference/auth/activate-service-account
+[ref-5-2-3]:https://cloud.google.com/sdk/gcloud/reference/auth/configure-docker
+[ref-5-2-4]:https://qiita.com/kg1/items/e2fc65e4189faf50bfe6
+[ref-5-2-5]:https://about.gitlab.com/blog/2016/11/03/publish-code-coverage-report-with-gitlab-pages
+[ref-5-2-6]:https://stackoverflow.com/questions/10024279/how-to-use-shell-commands-in-makefile
+[ref-5-3-1]:https://hub.docker.com/r/linuxserver/yq
+[ref-5-3-2]:https://dev.to/farnabaz/gitlab-create-merge-requests-from-cli-c36
+[ref-6-0-0]:https://github.com/containerd/containerd/issues/4837#issuecomment-794162761
+[ref-7-0-0]:https://cloud.google.com/config-connector/docs/how-to/secrets
+[ref-7-0-1]:https://www.amazon.co.jp/dp/4295008583
+[ref-7-0-2]:https://ichi.pro/circleci-oyobi-argocd-o-shiyoshita-kubernetesci-cd-110448048135194
+[ref-7-0-3]:https://www.weave.works/blog/kubernetes-anti-patterns-let-s-do-gitops-not-ciops
