@@ -281,7 +281,7 @@ deploy_dev: ## 5-3
 - 参考5-2-2. [gcloud auth activate-service-account  | Cloud SDK Documentation][ref-5-2-2]
 - 参考5-2-3. [gcloud auth configure-docker  |  Cloud SDK Documentation  |  Google Cloud][ref-5-2-3]
 - 参考5-2-4. [pytestのすぐに使えるカバレッジ計測 - Qiita][ref-5-2-4]
-- 参考5-2-5 [Publish code coverage report with GitLab Pages | GitLab][ref-5-2-5]
+- 参考5-2-5. [Publish code coverage report with GitLab Pages | GitLab][ref-5-2-5]
 
 - カバレッジレポートの一例
 ![](https://storage.googleapis.com/zenn-user-upload/d94fsbo29pcoefghamoumbsv70ki)
@@ -368,7 +368,7 @@ pytest: ## make pytest
       -o merge_request.target=${TARGET_BRANCH}
       origin argocd/${COMMIT_HASH}
 ```
-- 参考5-3-1. [linuxserver/yq]:[ref-5-3-1]
+- 参考5-3-1. [linuxserver/yq][ref-5-3-1]
 - 参考5-3-2. [Gitlab: Create merge requests from cli - DEV Community 👩‍💻👨‍💻][ref-5-3-2]
 
 ## 6. トラブルシュート
