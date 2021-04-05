@@ -424,31 +424,40 @@ $ docker version
 - [Kubernetes anti-patterns: Let's do GitOps, not CIOps!][ref-7-0-3]
 
 ## 8. 参考
-- [Quickstart  |  Kubernetes Engine Documentation  |  Google Cloud][ref-0-1-1]
-- [継続的デリバリーとは][ref-0-1-2]
-- [Guide To GitOps][ref-1-0-0]
-- [Gitlab RunnerをGKE上で実行するまでの設定方法[Google Cloud SDKとHelmら使用]][ref-3-1-1]
-- [Getting Started - Argo CD - Declarative GitOps CD for Kubernetes][ref-3-1-2]
-- [FATA[0000] Argo CD server address unspecified][ref-3-1-3]
-- [Multicluster GitOps with ArgoCD][ref-3-2-1]
-- [yqコマンド(jq wrapper for YAML)使い方備忘録][ref-4-1-1]
-- - [System Design Interview – An insider's guide, Second Edition | Xu, Alex][ref-4-2-1][ref-4-2-1]
-- [Snowflake形式のIDを採用した場合の苦労ポイント - yoskhdia’s diary][ref-4-2-2]
-- [includefile | Keyword reference for the .gitlab-ci.yml file | GitLab][ref-5-1-1]
-- [extends | Keyword reference for the .gitlab-ci.yml file | GitLab][ref-5-1-2]
-- [Use Docker to build Docker images | GitLab][ref-5-2-1] 
-- [gcloud auth activate-service-account  | Cloud SDK Documentation][ref-5-2-2]
-- [gcloud auth configure-docker  |  Cloud SDK Documentation  |  Google Cloud][ref-5-2-3]
-- [pytestのすぐに使えるカバレッジ計測 - Qiita][ref-5-2-4]
-- [Publish code coverage report with GitLab Pages | GitLab][ref-5-2-5]
-- [bash - How to use shell commands in Makefile - Stack Overflow][ref-5-2-6]
-- [linuxserver/yq][ref-5-3-1]
-- [Gitlab: Create merge requests from cli - DEV Community 👩‍💻👨‍💻][ref-5-3-2]
-- [failed to adjust OOM score for shim: invalid argument error -- for docker:dind in Kubernetes · Issue #4837 · containerd/containerd][ref-6-0-0]
-- [Secret を使用してセンシティブ データを保存  |  Config Connector のドキュメント  |  Google Cloud][ref-7-0-0]
-- [マイクロサービスパターン[実践的システムデザインのためのコード解説] (impress top gear) | Chris Richardson, 樽澤広亨, 長尾高弘 |本 | 通販 | Amazon][ref-7-0-1]
-- [CircleCIおよびArgoCDを使用したKubernetesCI / CD][ref-7-0-2]
-- [Kubernetes anti-patterns: Let's do GitOps, not CIOps!][ref-7-0-3]
+- 0.はじめに
+  - [Quickstart  |  Kubernetes Engine Documentation  |  Google Cloud][ref-0-1-1]
+  - [継続的デリバリーとは][ref-0-1-2]
+- 1.GitOpsとはなにか？
+  - [Guide To GitOps][ref-1-0-0]
+- 2.そもそもなぜGitOpsという考え方が台頭したのか？
+  - なし
+- 3.サンプルのGitOpsスタイルなCI/CDパイプラインの構成図とその技術構成
+  - [Gitlab RunnerをGKE上で実行するまでの設定方法[Google Cloud SDKとHelmら使用]][ref-3-1-1]
+  - [Getting Started - Argo CD - Declarative GitOps CD for Kubernetes][ref-3-1-2]
+  - [FATA[0000] Argo CD server address unspecified][ref-3-1-3]
+  - [Multicluster GitOps with ArgoCD][ref-3-2-1]
+- 4.サンプルのCI/CDパイプラインを構築するにあたり工夫したこと
+  - [yqコマンド(jq wrapper for YAML)使い方備忘録][ref-4-1-1]
+  - [System Design Interview – An insider's guide, Second Edition | Xu, Alex][ref-4-2-1][ref-4-2-1]
+  - [Snowflake形式のIDを採用した場合の苦労ポイント - yoskhdia’s diary][ref-4-2-2]
+- 5..gitlab-ci.yml解説
+  - [includefile | Keyword reference for the .gitlab-ci.yml file | GitLab][ref-5-1-1]
+  - [extends | Keyword reference for the .gitlab-ci.yml file | GitLab][ref-5-1-2]
+  - [Use Docker to build Docker images | GitLab][ref-5-2-1] 
+  - [gcloud auth activate-service-account  | Cloud SDK Documentation][ref-5-2-2]
+  - [gcloud auth configure-docker  |  Cloud SDK Documentation  |  Google Cloud][ref-5-2-3]
+  - [pytestのすぐに使えるカバレッジ計測 - Qiita][ref-5-2-4]
+  - [Publish code coverage report with GitLab Pages | GitLab][ref-5-2-5]
+  - [bash - How to use shell commands in Makefile - Stack Overflow][ref-5-2-6]
+  - [linuxserver/yq][ref-5-3-1]
+  - [Gitlab: Create merge requests from cli - DEV Community 👩‍💻👨‍💻][ref-5-3-2]
+- 6.トラブルシュート
+  - [failed to adjust OOM score for shim: invalid argument error -- for docker:dind in Kubernetes · Issue #4837 · containerd/containerd][ref-6-0-0]
+- 7.おわりに
+  - [Secret を使用してセンシティブ データを保存  |  Config Connector のドキュメント  |  Google Cloud][ref-7-0-0]
+  - [マイクロサービスパターン[実践的システムデザインのためのコード解説] (impress top gear) | Chris Richardson, 樽澤広亨, 長尾高弘 |本 | 通販 | Amazon][ref-7-0-1]
+  - [CircleCIおよびArgoCDを使用したKubernetesCI / CD][ref-7-0-2]
+  - [Kubernetes anti-patterns: Let's do GitOps, not CIOps!][ref-7-0-3]
 
 
 [ref-0-1-1]:https://cloud.google.com/kubernetes-engine/docs/quickstart
