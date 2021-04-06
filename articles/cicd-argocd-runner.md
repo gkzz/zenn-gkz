@@ -3,7 +3,7 @@ title: "[Gitlab RunnerとArgo CD使用]GitOpsスタイルなCI/CDパイプライ
 emoji: "😸"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["kubernetes", "gitlab"]
-published: false
+published: true
 ---
 
 ## 0. はじめに
