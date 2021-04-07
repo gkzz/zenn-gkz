@@ -889,6 +889,7 @@ $ docker run --rm -v "$PWD:$PWD" -w="$PWD" \
   --entrypoint yq linuxserver/yq \
   <yqコマンド>
 ```
+- 参考：[[Gitlab RunnerとArgo CD使用]GitOpsスタイルなCI/CDパイプラインを構築したのでふりかえる](https://zenn.dev/gkz/articles/cicd-argocd-runner)
 
 --- 2021/04/03更新はここまで。---
 
@@ -900,6 +901,7 @@ yqコマンド(jq wrapper for YAML)使い方備忘録は以上です。
 - [jqで階層構造になったデータから特定の値を持った、特定の階層のデータを抽出するとき - つれづれ日記](https://diary.sshida.com/20150503-3-jq%E3%81%A7%E9%9A%8E%E5%B1%A4%E6%A7%8B%E9%80%A0%E3%81%AB%E3%81%AA%E3%81%A3%E3%81%9F%E3%83%87%E3%83%BC%E3%82%BF%E3%81%8B%E3%82%89%E7%89%B9%E5%AE%9A%E3%81%AE%E5%80%A4%E3%82%92%E6%8C%81%E3%81%A3%E3%81%9F%E3%80%81%E7%89%B9%E5%AE%9A%E3%81%AE%E9%9A%8E%E5%B1%A4)
 - [jqで特定の値を書き換える - notebook](https://swfz.hatenablog.com/entry/2019/04/21/234818)
 - [linuxserver/yq](https://hub.docker.com/r/linuxserver/yq)
+- [[Gitlab RunnerとArgo CD使用]GitOpsスタイルなCI/CDパイプラインを構築したのでふりかえる](https://zenn.dev/gkz/articles/cicd-argocd-runner)
 
 ## P.S. Twitterもやってるのでフォローしていただけると泣いて喜びます:)
 [@gkzvoice](https://twitter.com/gkzvoice)
