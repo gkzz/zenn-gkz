@@ -58,7 +58,7 @@ https://twitter.com/gkzvoice/status/1395776522112229380?s=20
 
 指定されたterraformのバージョンより下位のバージョンを使うと、以下のようなエラーを引きます。
 
-:::details $ terraform init
+:::details Warning: Provider source not supported in Terraform v0.12
 ```
 $ terraform init
 Initializing the backend...
@@ -121,7 +121,7 @@ $ az login
 The default web browser has been opened at 略
 
 上記のようにターミナルに表示された後、ブラウザが起動します。
-AzureにログインするMicorsoft Accountを選択するか、作成するように求められ、淡々と認証手続きを進めます。
+AzureにログインするMicorsoft Accountを作成するか、既存のアカウントから選択したりと、淡々と認証手続きを進めます。
 画面の指示に従えば、認証手続きを終えることが出来るはずなので、具体的なやり方は割愛します。
 ```
 参考：[Sign in with the Azure CLI | Microsoft Docs](https://docs.microsoft.com/ja-jp/cli/azure/authenticate-azure-cli)
@@ -131,14 +131,17 @@ AzureにログインするMicorsoft Accountを選択するか、作成するよ�
 ![](https://storage.googleapis.com/zenn-user-upload/a47d25d1cde316ce62402c9e.png)
 
 ##### az loginは何をしているの？
-Azureの公式ドキュメントの [Sign in with the Azure CLI | Microsoft Docs](https://docs.microsoft.com/ja-jp/cli/azure/authenticate-azure-cli) を参照してみましょう。ご参考までにGoogle翻訳で日本語にしたものを抜粋します。
+Azureの公式ドキュメントの [Sign in with the Azure CLI | Microsoft Docs](https://docs.microsoft.com/ja-jp/cli/azure/authenticate-azure-cli) を参照してみましょう。参考までにGoogle翻訳で日本語にしたものを抜粋します。
 
 > Azure CLI にはいくつかの認証の種類があります。 開始する最も簡単な方法は、自動的にログインする Azure Cloud Shell を使用することです。ローカルでは、az login コマンドを使用して、ブラウザーから対話的にサインインできます。
 
 
 #### 6-2. azコマンドに認証情報を渡す方法その2(az account set --subscription="SUBSCRIPTION_ID")
 
-**`az login`** 以外にもazコマンドに認証情報を渡す方法はあります。それはazコマンドに紐づけたいサブスクリプションを指定するというものです。こちらを採用する場合、事前にAzure PortalなどでサブスクリプションIDを調べる必要がありますが、ブラウザを立ち上げることが難しい、JenkinsやGitlab Runner、Circle CIのjobにおいては重宝される方法ではないでしょうか。
+**`az login`** 以外にもazコマンドに認証情報を渡す方法はあります。それはazコマンドに紐づけたいサブスクリプションを指定するというものです。こちらを採用する場合、事前にAzure PortalなどでサブスクリプションIDを調べる必要がありますが、以下のケースでは重宝される方法ではないでしょうか。
+
+- ブラウザを立ち上げることが難しい環境下で認証情報を渡す必要がある
+  - たとえば、JenkinsやGitlab Runner、Circle CIらCI Executorのjobのなかで実行されるコマンド
 
 ```
 $ az account set --subscription="SUBSCRIPTION_ID"
@@ -166,7 +169,7 @@ $ az account show | jq -r '. | {environmentName: .environmentName, name: .name}'
 
 #### 7-1. 下記のサンプルコードを使ってmain.tfを作る
 
-- [Azure Provider: Authenticating via the Azure CLI | Guides | hashicorp/azurerm | Terraform Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli#configuring-azure-cli-authentication-in-terraform) を参考にAzure Provider Pluginのバージョン要件を以下のように記載します。
+- [Azure Provider: Authenticating via the Azure CLI | Guides | hashicorp/azurerm | Terraform Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli#configuring-azure-cli-authentication-in-terraform) を参考にAzure Provider Pluginのバージョン要件を以下のように記載
 
 ```
 terraform {
@@ -183,9 +186,12 @@ provider "azurerm" {
 }
 ```
 - 続いて、[Azure Provider: Authenticating via the Azure CLI | Guides | hashicorp/azurerm | Terraform Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli#configuring-azure-cli-authentication-in-terraform) を参考にデプロイするVMのresourceを書いていく
-  - resourceの意味についてはTerraformの公式ドキュメントに説明があったのでそちらをあたってほしいが、VMや仮想ネットワークなどAzureやAWSが提供するサービス群やそれらを構成する要素のことを指していると言ってよいと思う。
+  - resourceの意味についてはTerraformの公式ドキュメントに説明があったのでそちらをあたってほしい
+  - VMや仮想ネットワークなどAzureやAWSが提供するサービス群やそれらを構成する要素のことを指していると言ってよいと思う。
   - 参考：[Resources Overview - Configuration Language - Terraform by HashiCorp](https://www.terraform.io/docs/language/resources/index.html)
-- 先ほど書いたものとまとめると以下のようになる
+
+
+さて、ここまでで書いたものをまとめると以下のようになります。なお、サブスクリプションIDやパスワードなどは次に取り上げるvariable.tfやterraform.tfvarsで変数化しています。
 
 :::details main.tf
 ```
@@ -288,7 +294,7 @@ resource "azurerm_windows_virtual_machine" "main" {
 ```
 :::
 
-- サブスクリプションIDやパスワードなどは変数化しておく
+- 変数化したい値を列挙するvariable.tf
 
 :::details variable.tf
 ``` 
@@ -341,6 +347,29 @@ admin_password="fix_me"
 ```
 :::
 
+これでデプロイする準備は整いました！ **`terraform apply`** しましょう！、、、といきたいところですが、もうひとつやらなければならないことがありました。それが **`terraform init`** です。Azureにかぎらず、デプロイする前にデプロイするProviderのバイナリを手元にダウンロードする必要があります。
+
+##### Providerのバイナリってどこにあるの？
+`.terraform/providers`のサブディレクトリにありました。[Home - Extending Terraform - Terraform by HashiCorp](https://www.terraform.io/docs/extend/how-terraform-works.html) に参考になる記述を見つけました。
+
+> Terraform は、受け入れ可能な最新バージョンを Terraform レジストリからダウンロードし、.terraform/providers/ の下のサブディレクトリに保存します。
+
+参考：[Home - Extending Terraform - Terraform by HashiCorp](https://www.terraform.io/docs/extend/how-terraform-works.html) （Google翻訳使用）
+
+:::details .terraform/providersのサブディレクトリの様子
+
+```
+$ tree -L 6 .terraform/providers/registry.terraform.io
+.terraform/providers/registry.terraform.io
+└── hashicorp
+    └── azurerm
+        └── 2.46.0
+            └── linux_amd64
+                └── terraform-provider-azurerm_v2.46.0_x5
+
+4 directories, 1 file
+```
+:::
 
 
 #### 7-2. terraform init (Azure Provider Pluginのインストール)
@@ -553,54 +582,7 @@ $ terraform apply
 
 略
 
-Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
-  + create
-
-Terraform will perform the following actions:
-
-  # azurerm_network_security_group.main will be created
-  + resource "azurerm_network_security_group" "main" {
-      + id                  = (known after apply)
-      + location            = "eastus"
-      + name                = "hoge-nsg"
-      + resource_group_name = "hoge-resources"
-      + security_rule       = [
-          + {
-              + access                                     = "Allow"
-              + description                                = "Allow RDP access"
-              + destination_address_prefix                 = "*"
-              + destination_address_prefixes               = []
-              + destination_application_security_group_ids = []
-              + destination_port_range                     = "3389"
-              + destination_port_ranges                    = []
-              + direction                                  = "Inbound"
-              + name                                       = "allow_RDP"
-              + priority                                   = 110
-              + protocol                                   = "Tcp"
-              + source_address_prefix                      = "*"
-              + source_address_prefixes                    = []
-              + source_application_security_group_ids      = []
-              + source_port_range                          = "*"
-              + source_port_ranges                         = []
-            },
-        ]
-    }
-
-  # azurerm_public_ip.main will be created
-  + resource "azurerm_public_ip" "main" {
-      + allocation_method       = "Dynamic"
-      + fqdn                    = (known after apply)
-      + id                      = (known after apply)
-      + idle_timeout_in_minutes = 4
-      + ip_address              = (known after apply)
-      + ip_version              = "IPv4"
-      + location                = "eastus"
-      + name                    = "hoge-pip"
-      + resource_group_name     = "hoge-resources"
-      + sku                     = "Basic"
-    }
-
-Plan: 2 to add, 0 to change, 0 to destroy.
+Plan: 2 to add, 1 to change, 0 to destroy.
 
 Changes to Outputs:
   + public_ip_id = [
@@ -674,14 +656,16 @@ Do you really want to destroy all resources?
 ## "yes" と入力してdestroyを続ける
   Enter a value: 
 
+略
+
 Destroy complete! Resources: 7 destroyed.
 ```
 :::
 
 
-### 9. 小ネタ
+### 9. [小ネタ]変数をterraform planやterraform applyを実行するときに上書きしたい
 
-- 変数をterraform planやterraform applyを実行するときに上書きしたい
+- **`-var`オプションを渡す** ことでできます
 
 ```
 $ terraform plan -var 'environment=dev2'
@@ -697,6 +681,7 @@ Changes to Outputs:
     ]
 ```
 
+### 10. terraform applyを繰り返し行なったときの様子をみて、いわゆる「IaC」的な考えに思いを馳せる
 
 ### x. 接続元のIP指定(課題
 
@@ -712,6 +697,9 @@ resource "azurerm_public_ip" "こんなぐあい" {
 
 - Terraformの基本的な使い方
   - [Pragmatic Terraform on AWS - KOS-MOS - BOOTH](https://booth.pm/ja/items/1318735)
+- 各リソースの書き方
+  - 
+  - 
 - 冒頭の図で使ったアイコンの取得先
   - [AWS](https://icon-icons.com/icon/aws/146074)
   - [Azure](https://icon-icons.com/icon/microsoft-azure-logo/170956)
