@@ -15,8 +15,12 @@ https://twitter.com/gkzvoice/status/1395776522112229380?s=20
 
 ## 1. そもそもTerraformとは
 
-![](https://storage.googleapis.com/zenn-user-upload/f809cb7eed8ba50e03d51f8a.png)
+- https://github.com/hashicorp/terraform
+- IaCの思想に則りインフラのコード管理をリソースという単位でおこなうツール
+  - 詳しい説明は [実践Terraform　AWSにおけるシステム設計とベストプラクティス (技術の泉シリーズ（NextPublishing）)](https://www.amazon.co.jp/dp/B07XT7LJLC/) を参考にしてほしい
+  - 僕は上記の商業誌を出す前に販売していた [Pragmatic Terraform on AWS - KOS-MOS - BOOTH](https://booth.pm/ja/items/1318735) を持っており、よく参考にさせていただいている
 
+![](https://storage.googleapis.com/zenn-user-upload/0b41dd8c29db21dabdbec508.png)
 画像は [Terraform by HashiCorp](https://www.terraform.io/) を参考に筆者作成。アイコンの取得先は 「x. 参考資料」 にて記載。
 
 ## 2. 本記事における問題点の共有
@@ -187,7 +191,7 @@ provider "azurerm" {
 ```
 - 続いて、[Azure Provider: Authenticating via the Azure CLI | Guides | hashicorp/azurerm | Terraform Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli#configuring-azure-cli-authentication-in-terraform) を参考にデプロイするVMのresourceを書いていく
   - resourceの意味についてはTerraformの公式ドキュメントに説明があったのでそちらをあたってほしい
-  - VMや仮想ネットワークなどAzureやAWSが提供するサービス群やそれらを構成する要素のことを指していると言ってよいと思う。
+  - VMや仮想ネットワークなどAzureやAWSが提供するサービス群やそれらを構成する要素のことを指していると言ってよいと思う
   - 参考：[Resources Overview - Configuration Language - Terraform by HashiCorp](https://www.terraform.io/docs/language/resources/index.html)
 
 
@@ -486,8 +490,8 @@ hostname = "tf-vm"
 :::message alert
 
 **パブリックIPアドレスが付与されていない！**
-画面では映っていないですが、RDPのポートも開放できていない
-![](https://storage.googleapis.com/zenn-user-upload/abe3cc1a86fe60e665ba2c76.png)
+RDPのポートも開放できていない！（画面では映っていないですが）
+![](https://storage.googleapis.com/zenn-user-upload/7e3c505da44858d16a93d34a.png)
 :::
 
 おそらく下記のように「パブリックIPアドレス」がVMに付与されずにデプロイされてしまったのではないでしょうか？それでは、パブリックIPアドレスとRDPポートが追加されるようにtfファイルを修正しましょう。
@@ -613,6 +617,14 @@ public_ip_id = [
 ```
 :::
 
+
+**`無事にパブリックIPアドレスが付与されましたね！`**
+![](https://storage.googleapis.com/zenn-user-upload/2db9f9843205294c2a605a77.png)
+
+RDPポートも開放されていたので無事にローカルからVMに接続することが出来ました。（画面左がVMのWindowsのスペック詳細画面、右がVMのPowershellでコマンドを叩いている様子）
+
+![](https://storage.googleapis.com/zenn-user-upload/bb37a2d85407e7bf75e6e785.png)
+
 ### 8. お片付け
 
 :::details $ terraform destroy
@@ -663,9 +675,9 @@ Destroy complete! Resources: 7 destroyed.
 :::
 
 
-### 9. [小ネタ]変数をterraform planやterraform applyを実行するときに上書きしたい
+### 9.[小ネタ]変数をterraform planやterraform applyを実行するときに上書きしたい
 
-- **`-var`オプションを渡す** ことでできます
+- **`-var オプション`** を渡す ことでできます
 
 ```
 $ terraform plan -var 'environment=dev2'
@@ -681,9 +693,8 @@ Changes to Outputs:
     ]
 ```
 
-### 10. terraform applyを繰り返し行なったときの様子をみて、いわゆる「IaC」的な考えに思いを馳せる
 
-### x. 接続元のIP指定(課題
+### 10. 接続元のIP指定(課題
 
 手元はフルオープンのはずなので、こんな具合に動的の接続元のipを指定して絞れれば多少マシにはなるかな
 ```
@@ -693,7 +704,7 @@ resource "azurerm_public_ip" "こんなぐあい" {
 } 
 ```
 
-### x. 参考資料
+### 11. 参考資料
 
 - Terraformの基本的な使い方
   - [Pragmatic Terraform on AWS - KOS-MOS - BOOTH](https://booth.pm/ja/items/1318735)
