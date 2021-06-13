@@ -3,7 +3,7 @@ title: "[Azure]TerraformでWindows Virtual Machineでデプロイするまでに
 emoji: "😽"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [azure,terraform,cli]
-published: false
+published: true
 ---
 
 ## 0. はじめに
