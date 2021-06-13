@@ -829,6 +829,8 @@ resource "azurerm_public_ip" "こんなぐあい" {
 ##### 10.[小ネタ2]WindowsServerのイメージの名前を取得したい
 - https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/virtual_machine/multiple-network-interfaces/main.tf
 
+##### サンプルコード
+- [gkzz/azure-provider-terraform: Azure Provider with Terraform](https://github.com/gkzz/azure-provider-terraform)
 ## P.S. Twitterもやってるのでフォローしていただけると泣いて喜びます:)
 
 [@gkzvoice](https://twitter.com/gkzvoice)
