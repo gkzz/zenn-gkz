@@ -42,7 +42,8 @@ https://twitter.com/gkzvoice/status/1395776522112229380?s=20
 
 ### 4. Terraform applyするまでに必要なやることリスト
 
-- Terraformのインストール(Terraformのバージョンをアップグレード)
+- Terraformのインストール
+  - Terraformのバージョンをアップグレード
 - Azure CLIのインストール
   - azコマンドに認証情報を渡す
 - terraform init (Azure Provider Pluginのインストール)
@@ -50,6 +51,9 @@ https://twitter.com/gkzvoice/status/1395776522112229380?s=20
 - terraform apply (デプロイ)
 
 ### 5. Terraformのインストール
+
+僕は公式ドキュメントをたよりにおこないましたが、やり方は忘れました、、。
+[Install Terraform | Terraform - HashiCorp Learn](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
 #### 5-1. tfenvを使ってTerraformのバージョンをアップグレード
 
@@ -201,7 +205,7 @@ $ az account show | jq -r '. | {environmentName: .environmentName, name: .name}'
 
 #### 7-1. 下記のサンプルコードを使ってmain.tfを作る
 
-- [Azure Provider: Authenticating via the Azure CLI | Guides | hashicorp/azurerm | Terraform Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli#configuring-azure-cli-authentication-in-terraform) を参考にAzure Provider Pluginのバージョン要件を以下のように記載
+- https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli#configuring-azure-cli-authentication-in-terraform を参考にAzure Provider Pluginのバージョン要件を以下のように記載
 
 ```
 terraform {
@@ -217,10 +221,11 @@ provider "azurerm" {
   features {}
 }
 ```
-- 続いて、[Azure Provider: Authenticating via the Azure CLI | Guides | hashicorp/azurerm | Terraform Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli#configuring-azure-cli-authentication-in-terraform) を参考にデプロイするVMのresourceを書いていく
+- 続いて、https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli#configuring-azure-cli-authentication-in-terraform を参考にデプロイするVMのresourceを書いていく
   - resourceの意味についてはTerraformの公式ドキュメントに説明があったのでそちらをあたってほしい
   - VMや仮想ネットワークなどAzureやAWSが提供するサービス群やそれらを構成する要素のことを指していると言ってよいと思う
   - 参考：[Resources Overview - Configuration Language - Terraform by HashiCorp](https://www.terraform.io/docs/language/resources/index.html)
+  - **`resource??`** という方にはこちらを。[AWSでTerraformに入門 | DevelopersIO](https://dev.classmethod.jp/articles/terraform-getting-started-with-aws/)
 
 
 さて、ここまでで書いたものをまとめると以下のようになります。なお、サブスクリプションIDやパスワードなどは次に取り上げるvariable.tfやterraform.tfvarsで変数化しています。
@@ -379,6 +384,42 @@ admin_password="fix_me"
 ```
 :::
 
+- terraform plan/applyを実行後に確認したい値をoutput.tfに書く
+
+:::details output.tf
+```
+data "azurerm_subscription" "main" {
+}
+
+output "environment" {
+  value = var.environment
+}
+
+## https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription
+output "azurerm_subscription_name" {
+  value = data.azurerm_subscription.main.display_name
+}
+
+output "hostname" {
+  value = var.hostname
+}
+
+# ref: https://github.com/Azure/terraform-azurerm-compute/blob/master/outputs.tf
+output "public_ip_id" {
+  description = "id of the public ip address provisoned."
+  value       = azurerm_public_ip.main.*.id
+}
+
+output "admin_username" {
+  value = var.admin_username
+}
+
+output "admin_password" {
+  value = var.admin_password
+}
+```
+:::
+
 これでデプロイする準備は整いました！ **`terraform apply`** しましょう！、、、といきたいところですが、もうひとつやらなければならないことがありました。それが **`terraform init`** です。Azureにかぎらず、applyするProviderのバイナリを手元にダウンロードする必要があります。
 
 ##### [閑話休題]Providerのバイナリってどこにあるの？
@@ -386,7 +427,7 @@ admin_password="fix_me"
 - `.terraform/providers`のサブディレクトリ
 > Terraform は、受け入れ可能な最新バージョンを Terraform レジストリからダウンロードし、.terraform/providers/ の下のサブディレクトリに保存します。
 
-参考：[Home - Extending Terraform - Terraform by HashiCorp](https://www.terraform.io/docs/extend/how-terraform-works.html) （Google翻訳使用）
+参考：[Extending Terraform - Terraform by HashiCorp](https://www.terraform.io/docs/extend/how-terraform-works.html) （Google翻訳使用）
 
 ```
 $ tree -L 6 .terraform/providers/registry.terraform.io
@@ -504,14 +545,14 @@ hostname = "tf-vm"
 
 ```
 
-##### 無事、デプロイできたでしょうか？？
+##### デプロイできた！？
 
-下記のように「パブリックIPアドレス」がVMに付与されずにデプロイされてしまったのではないでしょうか？
+無事デプロイ出来たか、Azureのポータル画面で確認してみましょう。下記のように「パブリックIPアドレス」がVMに付与されていないのではないでしょうか？
 
 :::message alert
 
 **パブリックIPアドレスが付与されていない！**
-RDPのポートも開放できていない！（画面では映っていないですが）
+画面では映っていないですが、RDPのポートも開放できていない。
 ![](https://storage.googleapis.com/zenn-user-upload/7e3c505da44858d16a93d34a.png)
 :::
 
@@ -560,7 +601,7 @@ resource "azurerm_public_ip" "main" {
 }
 
 ## 以下を参考に追加
-## https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/virtual_machine/multiple-network-interfaces/main.tf
+## https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/virtual_machine/multiple-network-interfaces/main.tf#L60
 resource "azurerm_network_security_group" "main" {
   name                = "${var.prefix}-nsg"
   location            = azurerm_resource_group.main.location
@@ -672,8 +713,7 @@ Changes to Outputs:
   - public_ip_id = [
       "/subscriptions/xxxxxxxxx/resourceGroups/tf-resources/providers/Microsoft.Network/publicIPAddresses/tf-pip",] -> null
 
-
-
+略
 
 hostname = "tf-vm"name = "Azure for Students"
 hostname = "tf-vm"
@@ -696,9 +736,9 @@ Destroy complete! Resources: 7 destroyed.
 
 ---
 
-### 9.[小ネタ]変数をterraform planやterraform applyを実行するときに上書きしたい
+### 9.[小ネタ1]変数をterraform planやterraform applyを実行するときに上書きしたい
 
-- **`-var オプション`** を渡す ことでできます
+- **`-var オプション`** を渡せばok
 
 ```
 $ terraform plan -var 'environment=dev2'
@@ -713,6 +753,38 @@ Changes to Outputs:
       + (known after apply),
     ]
 ```
+参考：[Pragmatic Terraform on AWS - KOS-MOS - BOOTH](https://booth.pm/ja/items/1318735)
+
+### 10.[小ネタ2]WindowsServerのイメージの名前を取得したい
+
+- **`az vm image list`** を使えばok
+
+```
+$  az vm image list -l japaneast --offer WindowsServer | \
+> jq -r '.[]  | {offer: .offer, urnAlias: .urnAlias}' 
+WARNING: You are viewing an offline list of images, use --all to retrieve an up-to-date list
+{
+  "offer": "WindowsServer",
+  "urnAlias": "Win2019Datacenter"
+}
+{
+  "offer": "WindowsServer",
+  "urnAlias": "Win2016Datacenter"
+}
+{
+  "offer": "WindowsServer",
+  "urnAlias": "Win2012R2Datacenter"
+}
+{
+  "offer": "WindowsServer",
+  "urnAlias": "Win2012Datacenter"
+}
+{
+  "offer": "WindowsServer",
+  "urnAlias": "Win2008R2SP1"
+}
+```
+参考：[How to search all VM images in Azure](https://lnx.azurewebsites.net/how-to-search-all-vm-images-in-azure/)
 
 
 ### 10. 接続元のIP指定(課題
@@ -720,27 +792,43 @@ Changes to Outputs:
 手元はフルオープンのはずなので、こんな具合に動的の接続元のipを指定して絞れれば多少マシにはなるかな
 ```
 resource "azurerm_public_ip" "こんなぐあい" {
-## https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/virtual_machine/multiple-network-interfaces/main.tf#L35
  ip="$(curl inet-ip.info)/32"
 } 
 ```
 
 ### 11. 参考資料
 
-- Terraformの基本的な使い方
-  - [Pragmatic Terraform on AWS - KOS-MOS - BOOTH](https://booth.pm/ja/items/1318735)
-  - ※最新版はこちら。[実践Terraform　AWSにおけるシステム設計とベストプラクティス (技術の泉シリーズ（NextPublishing）)](https://www.amazon.co.jp/dp/B07XT7LJLC/) 
-- TerraformでAzureの認証手続きのやりかた
-  - [Azure Provider: Authenticating via the Azure CLI | Guides | hashicorp/azurerm | Terraform Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli)
-- 各リソースの書き方
-  - https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/windows/basic-password/main.tf
-  - [Create an Azure Virtual Machine with Terraform - Owen Davies](https://owendavies.net/articles/create-azure-virtual-machine-with-terraform/)
-- パブリックIPアドレスをVMに付与する
-  - https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/virtual_machine/multiple-network-interfaces/main.tf#L35
-- RDPポートを開放する
-  - https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/virtual_machine/multiple-network-interfaces/main.tf#L61
-  - https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription
+##### 1. そもそもTerraformとは
+- [Pragmatic Terraform on AWS - KOS-MOS - BOOTH](https://booth.pm/ja/items/1318735)
+- ※最新版はこちら。[実践Terraform　AWSにおけるシステム設計とベストプラクティス (技術の泉シリーズ（NextPublishing）)](https://www.amazon.co.jp/dp/B07XT7LJLC/) 
 - 冒頭の図で使ったアイコンの取得先
   - [AWS](https://icon-icons.com/icon/aws/146074)
   - [Azure](https://icon-icons.com/icon/microsoft-azure-logo/170956)
   - [GCP](https://icon-icons.com/icon/google-cloud-logo/171058)
+
+##### 3. 環境/バージョン情報
+- [追加 Azure サブスクリプションの作成 | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/cost-management-billing/manage/create-subscription)
+
+##### 5. Terraformのインストール
+- [Install Terraform | Terraform - HashiCorp Learn](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+- [terraform-providers/terraform-provider-azurerm: Terraform provider for Azure Resource Manager](https://github.com/terraform-providers/terraform-provider-azurerm)
+
+##### 6. Azure CLIのインストール
+- [Install the Azure CLI for Linux manually | Microsoft Docs](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux)
+- [Sign in with the Azure CLI | Microsoft Docs](https://docs.microsoft.com/ja-jp/cli/azure/authenticate-azure-cli)
+- https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli
+
+##### 7. VMをデプロイするmain.tfを作る
+- https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli#configuring-azure-cli-authentication-in-terraform
+- [Resources Overview - Configuration Language - Terraform by HashiCorp](https://www.terraform.io/docs/language/resources/index.html)
+- [Extending Terraform - Terraform by HashiCorp](https://www.terraform.io/docs/extend/how-terraform-works.html)
+- [AWSでTerraformに入門 | DevelopersIO](https://dev.classmethod.jp/articles/terraform-getting-started-with-aws/)
+- https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/virtual_machine/multiple-network-interfaces/main.tf#L35
+- https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/virtual_machine/multiple-network-interfaces/main.tf#L60
+
+##### 10.[小ネタ2]WindowsServerのイメージの名前を取得したい
+- https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/virtual_machine/multiple-network-interfaces/main.tf
+
+## P.S. Twitterもやってるのでフォローしていただけると泣いて喜びます:)
+
+[@gkzvoice](https://twitter.com/gkzvoice)
