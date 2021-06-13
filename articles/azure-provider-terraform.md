@@ -16,15 +16,14 @@ https://twitter.com/gkzvoice/status/1395776522112229380?s=20
 ## 1. そもそもTerraformとは
 
 - https://github.com/hashicorp/terraform
-- IaCの思想に則りインフラのコード管理をリソースという単位でおこなうツール
+- IaCの思想にのっとり、インフラのコード管理をリソースという単位でおこなうツール
   - 詳しい説明は [実践Terraform　AWSにおけるシステム設計とベストプラクティス (技術の泉シリーズ（NextPublishing）)](https://www.amazon.co.jp/dp/B07XT7LJLC/) を参考にしてほしい
-  - 僕は上記の商業誌を出す前に販売していた [Pragmatic Terraform on AWS - KOS-MOS - BOOTH](https://booth.pm/ja/items/1318735) を持っており、よく参考にさせていただいている
 
 ![](https://storage.googleapis.com/zenn-user-upload/0b41dd8c29db21dabdbec508.png)
 画像は [Terraform by HashiCorp](https://www.terraform.io/) を参考に筆者作成。アイコンの取得先は 「x. 参考資料」 にて記載。
 
 ## 2. 本記事における問題点の共有
-- できあがったtfファイルはGithubに転がっているが、必要最低限のmain.tfに手を加えていく過程が紹介されている資料が少ない。
+- できあがったtfファイルはGithubに転がっているが、サンプルコードのmain.tfに手を加えていく過程が紹介されている資料が少ない。
   - 本記事では、terraform applyするまでにやったこと、main.tfに手を加えていく過程を残したい
   - Terraformのバージョンを引き上げなくちゃいけなくなった場合の対処もしたのでそれも（引き上げる前のバージョンに戻すことも出来るようにする
 
@@ -33,7 +32,7 @@ https://twitter.com/gkzvoice/status/1395776522112229380?s=20
 
 ```
 - Ubuntu 20.04.2 LTS (Terraform, azure-cliを使った実行環境)
-  - Terraform v0.15.4
+  - Terraform v1.0.0
   - azure-cli 2.61.0
 ```
 
@@ -47,8 +46,8 @@ https://twitter.com/gkzvoice/status/1395776522112229380?s=20
 - Azure CLIのインストール
   - azコマンドに認証情報を渡す
 - terraform init (Azure Provider Pluginのインストール)
-- terraform plan (Dry Run/tfで書いていることが実行できるか確認)
-- terraform apply (Wet Run/デプロイ)
+- terraform plan (デプロイ、applyすることで生じる差分を確認)
+- terraform apply (デプロイ)
 
 ### 5. Terraformのインストール
 
@@ -84,25 +83,54 @@ $ tfenv list
 * 0.12.28 (set by ${HOME}/.tfenv/version)
   0.12.5
 
-## 引き上げ候補はv0.15.x以上とする
-$ tfenv list-remote | grep 15
-0.15.4
+## 引き上げ候補はv1.0.xとする
+$ tfenv list-remote | grep -E "^1.0"
+1.0.0
 
-## v0.15.4にする
-$ tfenv install 0.15.4
+## v1.0.0にする
+$ tfenv install 1.0.0
+[INFO] Installing Terraform v1.0.0
+[INFO] Downloading release tarball from https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip
+################################################################################################## 100.0%
+[INFO] Downloading SHA hash file from https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_SHA256SUMS
+tfenv: tfenv-install: [WARN] No keybase install found, skipping OpenPGP signature verification
+Archive:  tfenv_download.2j32di/terraform_1.0.0_linux_amd64.zip
+  inflating: $HOME/.tfenv/versions/1.0.0/terraform  
+[INFO] Installation of terraform v1.0.0 successful
+[INFO] Switching to v1.0.0
+[INFO] Switching completed
 
 ## 無事、引き上げることができた
 $ tfenv list
-* 0.15.4 (set by ${HOME}/.tfenv/version)
+* 1.0.0 (set by $HOME/.tfenv/version)
+  0.15.4
   0.12.28
   0.12.5
-0.15.3
 
 ## terraform initしてから以下のコマンドを実行すると、Azure Provider Pluguinのバージョン（ここではv2.46.0）も表示される
 $ terraform version
-Terraform v0.15.4
+Terraform v1.0.0
 on linux_amd64
 + provider registry.terraform.io/hashicorp/azurerm v2.46.0
+
+## バージョンを戻してみる
+$ tfenv use 0.12.5
+[INFO] Switching to v0.12.5
+[INFO] Switching completed
+$ tfenv list
+  1.0.0
+  0.15.4
+  0.12.28
+* 0.12.5 (set by /home/gkz/.tfenv/version)
+
+## 無事に戻すことが出来た
+$ terraform version
+Terraform v0.12.5
+
+## 改めて今回使うv1.0.0にする
+$ tfenv use 1.0.0
+[INFO] Switching to v1.0.0
+[INFO] Switching completed
 ```
 
 ### 6. Azure CLIのインストール
@@ -167,7 +195,7 @@ $ az account show | jq -r '. | {environmentName: .environmentName, name: .name}'
 
 無事azコマンドをゲットして認証もできましたね。これでTerraformからAzureのサービスを操作するための下準備は終わりました。それではTerraformでVMをデプロイしてみましょう。
 
-----
+---
 
 ### 7. VMをデプロイするmain.tfを作る
 
@@ -298,7 +326,7 @@ resource "azurerm_windows_virtual_machine" "main" {
 ```
 :::
 
-- 変数化したい値を列挙するvariable.tf
+- 変数化したい値はvariable.tf、あるいはterraform.tfvars
 
 :::details variable.tf
 ``` 
@@ -336,9 +364,9 @@ variable "admin_password" {
 ```
 :::
 
-- variable.tfにdefault値として定義するのもありだけど、terraform.tfvarsに書いておいてterraform.tfvarsはgitの管理下から外すのもアリ
+- variable.tfにdefault値として定義するのもアリだけど、terraform.tfvarsに書いておいてterraform.tfvarsはgitの管理下から外すこともできる
   - "fix_me"と書いてあるところをazコマンドやAzureポータルで確認して修正
-  - なお、admin_usernameとadmin_passwordは、デプロイしたVMにログインする際に使うユーザー名とパスワードであり、こちらは任意に決める
+  - なお、admin_usernameとadmin_passwordは、デプロイしたVMにログインする際に使うユーザー名とパスワードであり、こちらは任意
 
 :::details terraform.tfvars
 
@@ -351,16 +379,14 @@ admin_password="fix_me"
 ```
 :::
 
-これでデプロイする準備は整いました！ **`terraform apply`** しましょう！、、、といきたいところですが、もうひとつやらなければならないことがありました。それが **`terraform init`** です。Azureにかぎらず、デプロイする前にデプロイするProviderのバイナリを手元にダウンロードする必要があります。
+これでデプロイする準備は整いました！ **`terraform apply`** しましょう！、、、といきたいところですが、もうひとつやらなければならないことがありました。それが **`terraform init`** です。Azureにかぎらず、applyするProviderのバイナリを手元にダウンロードする必要があります。
 
-##### Providerのバイナリってどこにあるの？
-`.terraform/providers`のサブディレクトリにありました。[Home - Extending Terraform - Terraform by HashiCorp](https://www.terraform.io/docs/extend/how-terraform-works.html) に参考になる記述を見つけました。
+##### [閑話休題]Providerのバイナリってどこにあるの？
 
+- `.terraform/providers`のサブディレクトリ
 > Terraform は、受け入れ可能な最新バージョンを Terraform レジストリからダウンロードし、.terraform/providers/ の下のサブディレクトリに保存します。
 
 参考：[Home - Extending Terraform - Terraform by HashiCorp](https://www.terraform.io/docs/extend/how-terraform-works.html) （Google翻訳使用）
-
-:::details .terraform/providersのサブディレクトリの様子
 
 ```
 $ tree -L 6 .terraform/providers/registry.terraform.io
@@ -373,8 +399,6 @@ $ tree -L 6 .terraform/providers/registry.terraform.io
 
 4 directories, 1 file
 ```
-:::
-
 
 #### 7-2. terraform init (Azure Provider Pluginのインストール)
 
@@ -423,7 +447,7 @@ Warning: Provider source not supported in Terraform v0.12
 **「5-1. tfenvを使ってTerraformのバージョンをアップグレード」** で紹介している方法を使ってTerraformのバージョンを0.12.x以上に引き上げてから、改めてterraform initを実行してみてください。
 :::
 
-#### 7-3. terraform plan (Dry Run/tfで書いていることが実行できるか確認)
+#### 7-3. terraform plan (デプロイ、applyすることで生じる差分を確認)
 
 ```
 $ terraform plan
@@ -447,7 +471,7 @@ Changes to Outputs:
 Note: You didn't use the -out option to save this plan, so Terraform can't guarantee to take exactly these actions if you run "terraform apply" now.
 ```
 
-#### 7-4. terraform plan (Wet Run/デプロイ)
+#### 7-4. terraform plan (デプロイ)
 
 ```
 $ terraform apply
@@ -468,11 +492,6 @@ Do you want to perform these actions?
 ## "yes" と入力してapplyを続ける
   Enter a value: <yes>
 
-
-## "yes" と入力してapplyを続ける
-
-略
-
 Apply complete! Resources: 5 added, 0 changed, 0 destroyed.
 
 Outputs:
@@ -485,7 +504,9 @@ hostname = "tf-vm"
 
 ```
 
-無事、デプロイできたでしょうか？？
+##### 無事、デプロイできたでしょうか？？
+
+下記のように「パブリックIPアドレス」がVMに付与されずにデプロイされてしまったのではないでしょうか？
 
 :::message alert
 
@@ -494,7 +515,7 @@ RDPのポートも開放できていない！（画面では映っていない�
 ![](https://storage.googleapis.com/zenn-user-upload/7e3c505da44858d16a93d34a.png)
 :::
 
-おそらく下記のように「パブリックIPアドレス」がVMに付与されずにデプロイされてしまったのではないでしょうか？それでは、パブリックIPアドレスとRDPポートが追加されるようにtfファイルを修正しましょう。
+それでは、パブリックIPアドレスとRDPポートが追加されるようにtfファイルを修正しましょう。
 
 #### 7-5. パブリックIPアドレスの付与とRDPポートの開放をするようにtfファイルを修正
 
@@ -580,7 +601,6 @@ resource "azurerm_network_security_group" "main" {
 - もういちどterraform apply
   - **`Apply complete! Resources: 2 added, 1 changed, 0 destroyed.`** とplanと同じであればok
 
-:::details terraform apply
 ```
 $ terraform apply
 
@@ -610,15 +630,17 @@ admin_username = "<your_username>"
 azurerm_subscription_name = "<your_subcriptioname>"
 environment               = "dev" 
 hostname = "tf-vm"
+public_ip_address = [
+  "",
+]
 public_ip_id = [
   "/subscriptions/xxxxxxxxx/resourceGroups/tf-resources/providers/Microsoft.Network/publicIPAddresses/tf-pip",
 ]
 
 ```
-:::
 
+##### 無事にパブリックIPアドレスが付与されましたね！
 
-**`無事にパブリックIPアドレスが付与されましたね！`**
 ![](https://storage.googleapis.com/zenn-user-upload/2db9f9843205294c2a605a77.png)
 
 RDPポートも開放されていたので無事にローカルからVMに接続することが出来ました。（画面左がVMのWindowsのスペック詳細画面、右がVMのPowershellでコマンドを叩いている様子）
@@ -627,7 +649,6 @@ RDPポートも開放されていたので無事にローカルからVMに接続
 
 ### 8. お片付け
 
-:::details $ terraform destroy
 ```
 $ terraform destroy
 
@@ -672,8 +693,8 @@ Do you really want to destroy all resources?
 
 Destroy complete! Resources: 7 destroyed.
 ```
-:::
 
+---
 
 ### 9.[小ネタ]変数をterraform planやterraform applyを実行するときに上書きしたい
 
@@ -708,9 +729,17 @@ resource "azurerm_public_ip" "こんなぐあい" {
 
 - Terraformの基本的な使い方
   - [Pragmatic Terraform on AWS - KOS-MOS - BOOTH](https://booth.pm/ja/items/1318735)
+  - ※最新版はこちら。[実践Terraform　AWSにおけるシステム設計とベストプラクティス (技術の泉シリーズ（NextPublishing）)](https://www.amazon.co.jp/dp/B07XT7LJLC/) 
+- TerraformでAzureの認証手続きのやりかた
+  - [Azure Provider: Authenticating via the Azure CLI | Guides | hashicorp/azurerm | Terraform Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli)
 - 各リソースの書き方
-  - 
-  - 
+  - https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/windows/basic-password/main.tf
+  - [Create an Azure Virtual Machine with Terraform - Owen Davies](https://owendavies.net/articles/create-azure-virtual-machine-with-terraform/)
+- パブリックIPアドレスをVMに付与する
+  - https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/virtual_machine/multiple-network-interfaces/main.tf#L35
+- RDPポートを開放する
+  - https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/examples/virtual-machines/virtual_machine/multiple-network-interfaces/main.tf#L61
+  - https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription
 - 冒頭の図で使ったアイコンの取得先
   - [AWS](https://icon-icons.com/icon/aws/146074)
   - [Azure](https://icon-icons.com/icon/microsoft-azure-logo/170956)
