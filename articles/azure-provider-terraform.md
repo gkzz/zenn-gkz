@@ -84,7 +84,8 @@ Warning: Provider source not supported in Terraform v0.12
 ```
 ## 切り替え前＝引き上げ前のバージョンを確認
 $ tfenv list
-* 0.12.28 (set by ${HOME}/.tfenv/version)
+* 0.15.4 (set by /home/gkz/.tfenv/version)
+  0.12.28
   0.12.5
 
 ## 引き上げ候補はv1.0.xとする
