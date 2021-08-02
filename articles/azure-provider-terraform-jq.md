@@ -335,6 +335,6 @@ resource "azurerm_linux_virtual_machine" "main" {
 [@gkzvoice](https://twitter.com/gkzvoice)
 
 
-### P.S. AzureでTerraformを使ってLinux VMをデプロイするサンプルコード
+### P.P.S. AzureでTerraformを使ってLinux VMをデプロイするサンプルコード
 
 https://github.com/gkzz/azure-provider-terraform-linux
