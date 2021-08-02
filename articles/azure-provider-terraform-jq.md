@@ -3,19 +3,21 @@ title: "[Azure]TerraformでLinux VMをデプロイするイメージのバージ
 emoji: "🐷"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [azure,terraform,cli]
-published: false
+published: true
 ---
 
 ## 0. はじめに
 こんにちは。都内でエンジニアをしている、[@gkzvoice](https://twitter.com/gkzvoice)です。
 
-AzureでLinux VMをデプロイする必要に迫られたので、先日書いた記事と以下のAzureのドキュメントを頼りにtfファイルの作成を進めたのですが、デプロイするイメージのバージョン（sku）を探すことに苦戦しました。
+AzureでLinux VMをデプロイする必要に迫られたので、先日書いた記事と以下のAzureのドキュメントを頼りにtfファイルの作成を進めたのですが、**`デプロイするイメージのバージョン（sku）を探すこと`** に苦戦しました。
 
 - [[Azure]TerraformでWindows Virtual Machineでデプロイするまでにおこなったこと](https://zenn.dev/gkz/articles/azure-provider-terraform)
 - [Terraform を使用して Azure で Linux VM とインフラストラクチャを構成する | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/developer/terraform/create-linux-virtual-machine-with-infrastructure)
 
 そもそも論として、ここで言っているskuってなに？sku以外にも必要な情報ってないの？あと、その調べ方は？と疑問に思っている方もいらっしゃることでしょう。
 そこで、本記事では問題点として以下の3つを掲げ、またその自分なりの解決策、あるいは考えを書いていきます。
+
+※ なお、AzureでTerraformを使ってLinux VMをデプロイするサンプルコードは、本記事の最後に掲載しています。
 
 ## 1. 本記事における問題点の共有
 
@@ -28,9 +30,11 @@ AzureでLinux VMをデプロイする必要に迫られたので、先日書い�
 ```
 - ローカル
   - Ubuntu 20.04.2 LTS
+  - azure-cli 2.61.0
+  - jq-1.6
 ```
 
-ディスクなど他のスペックの情報はここでは重要ではないので割愛します。
+デプロイするディスクなど他のスペックの情報はここでは重要ではないので割愛します。
 
 ## 3. [問題点1]TerraformでLinux VMをデプロイするにあたって必要な情報は何か？
 
@@ -212,7 +216,7 @@ $ az vm image list -l eastus -p Canonical -f UbuntuServer --all | jq -c 'sort_by
 $
 ```
 
-※ "12"をselect()の検索条件から外す
+※ "12"をselect()の検索条件から外すと、18.04-LTSが出力される（skuを降順でソートしているので）
 ```
 $ az vm image list -l eastus -p Canonical -f UbuntuServer --all | jq -c 'sort_by(.sku) | reverse | limit(3; .[] | select(.sku|match(".*LTS.*")))'
 {"offer":"UbuntuServer","publisher":"Canonical","sku":"18.04-LTS","urn":"Canonical:UbuntuServer:18.04-LTS:18.04.202107200","version":"18.04.202107200"}
@@ -298,8 +302,39 @@ $ echo '{"samples":[{"item_id":1,"name":"alice", "age": 10},{"item_id":2,"name":
 }
 $
 ```
+## 7. Terrafformで指定しなければならないpublisher, offer, sku, version全て調べて指定することが出来た
+
+
+:::details main.tf（抜粋）
+```
+resource "azurerm_linux_virtual_machine" "main" {
+  # 略
+
+  admin_ssh_key {
+    # 略
+  }
+
+  os_disk {
+    # 略
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+    #version   = "latest"
+    version   = "18.04.202107200"
+  }
+}
+```
+:::
 
 
 ## P.S. Twitterもやってるのでフォローしていただけると泣いて喜びます:)
 
 [@gkzvoice](https://twitter.com/gkzvoice)
+
+
+### P.S. AzureでTerraformを使ってLinux VMをデプロイするサンプルコード
+
+https://github.com/gkzz/azure-provider-terraform-linux
