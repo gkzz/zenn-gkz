@@ -109,7 +109,11 @@ resource "azurerm_linux_virtual_machine" "main" {
 ```
 :::
 
-#### [ポイント2]"azurerm_linux_virtual_machine"リソースを用意
+#### [ポイント2]"azurerm_storage_account"リソースと"random_id"リソースを使う
+
+:::messages
+"azurerm_storage_account"リソースのnameはランダム値としたいので、"random_id"リソースも使う
+:::
 
 :::details main.tfから"azurerm_storage_account"リソースと"random_id"リソースを抜粋
 ```
@@ -156,37 +160,121 @@ $
 :::
 
 
-#### 調べたこと
+#### "azurerm_linux_virtual_machine"リソースでenabled=trueとすることができないか調べたこと
 
-ARMでは使っている
-https://docs.microsoft.com/ja-jp/azure/virtual-machines/boot-diagnostics#enable-managed-boot-diagnostics-using-azure-resource-manager-arm-templates
+- [Azure のブート診断 - Azure Virtual Machines | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/virtual-machines/boot-diagnostics#enable-managed-boot-diagnostics-using-azure-resource-manager-arm-templates) によると、ARMでは使われている
+  - ※手元で未検証
 
+```
+ "diagnosticsProfile": {
+     "bootDiagnostics": {
+         "enabled": true
+      }
+ }
+```
 
-
-"?"は謎だけどenabledは使っていいと思うんだけどなあ。
-> A boot_diagnostics block supports the following:
-> enabled - (Required) Should Boot Diagnostics be enabled for this Virtual Machine?
-https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_machine
+- [azurerm_virtual_machine | Resources | hashicorp/azurerm | Terraform Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_machine) で書かれている以下のことはどういうことだろう？まだenabledが書くことが出来るようになっていないということなのか？
+  - > A boot_diagnostics block supports the following:
+    >
+    > ・enabled - (Required) Should Boot Diagnostics be enabled for this Virtual Machine?
+    >
+    > ・storage_uri - (Required) The Storage Account's Blob Endpoint which should hold the virtual machine's diagnostic files.
 
 ## 4. TerraformだけでAzureのブート診断を有効化できないからどうしたか
+TerraformとGUIの合わせ技でブート診断を有効化としました。Terraformでストレージアカウントを作成し、GUIでブート診断を有効化とするようなかんじです。
 
-GUIとの合わせ技
+### 4-1.Terraformでストレージアカウントを作成
+
+- "azurerm_linux_virtual_machine"リソースのboot_diagnosticsから、enabled = "true"を削除
+- "azurerm_storage_account"リソースと"random_id"リソースは上記で書いたものをそのまま使う
+
+:::details main.tfから"azurerm_linux_virtual_machine"リソースと"azurerm_storage_account"リソースと"random_id"リソースを抜粋
+```
+略
+
+resource "azurerm_linux_virtual_machine" "main" {
+  name                = "${var.prefix}-vm"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  size                = "Standard_F2"
+  admin_username      = "${var.admin_username}"
+  network_interface_ids = [
+    azurerm_network_interface.main.id,
+  ]
+
+  admin_ssh_key {
+    #略
+  }
+
+  os_disk {
+    #略
+  }
+
+  source_image_reference {
+    #略
+  }
+
+  boot_diagnostics {
+        # enabled = "true"
+        storage_account_uri = azurerm_storage_account.main.primary_blob_endpoint
+  }
+}
+
+resource "azurerm_storage_account" "main" {
+    name                        = "diag${random_id.main.hex}"
+    location            = azurerm_resource_group.main.location
+    resource_group_name         = azurerm_resource_group.main.name
+    account_replication_type    = "LRS"
+    account_tier                = "Standard"
+}
+
+resource "random_id" "main" {
+    keepers = {
+        # Generate a new ID only when a new resource group is defined
+        resource_group = azurerm_resource_group.main.name
+    }
+
+    byte_length = 8
+}
+```
+:::
+
+- "azurerm_storage_account"のnameのoutputを設定(後続の設定で"azurerm_storage_account"のnameを使うので)
+
+:::details output.tfから抜粋
+```
+output "azurerm_storage_account_name" {
+  value = azurerm_storage_account.main.name
+}
 
 ```
-ストレージアカウントの作成
+:::
 
 
-ブート診断の有効化
-```
+### 4-2.GUIでブート診断を有効化
+
+- terraform apply後、出力される「ストレージアカウント」を確認するでデプロイしたVMの画面左のタブを下にスクロールして、「診断設定」をクリック
+
+- 「ストレージアカウントを選択します」の下のタブから"azurerm_storage_account"のnameを選択
+  - **`prefixが"diag"となっているはず！`**
+- 「ゲスト レベルの診断を有効にする」をクリック
 
 ![](https://storage.googleapis.com/zenn-user-upload/b4c4ef3f303c04b51657b463.png)
 
+
+- しばらくすると以下のような画面に切り替わるので「ブート診断を表示する」をクリック
+
 ![](https://storage.googleapis.com/zenn-user-upload/915b86bc824c2102b2885430.png)
+
+- 以下のようにVMのスクリーンショット(画面左)とログ(画面右)が表示され、ブート診断が有効となっていることが確認できる
 
 ![](https://storage.googleapis.com/zenn-user-upload/7471e17e1d706c920d0534bb.png)
 
 
+## 5. 今後の展望
+現時点ではブート診断の設定がTerraformだけで完結することは難しいようですが、ドキュメントが先行している？ことから、Terraformだけでブート診断の有効化ができる日はそう遠くないのかもしれません。
 
+もっといいブート診断の有効化の設定方法があればコメントなどで教えていただけるとうれしいです。
 
 ### P.S. AzureでTerraformを使ってLinux VMをデプロイするサンプルコード
 
