@@ -142,9 +142,9 @@ resource "random_id" "main" {
 
 https://gist.github.com/archmangler/4f99d94c230dfe7f01a8e6997f9a7eb9
 
+### enabled = "true"を書いてterraform planしたらエラーとなってしまった！！
 
 :::message alert
-**`enabled = "true"`** を書いてterraform planしたらエラー
 ```
 $ terraform plan
 ╷
