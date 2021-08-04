@@ -3,7 +3,7 @@ title: "Azureのブート診断の有効化をTerraformだけで完結できな�
 emoji: "📌"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [azure,terraform,cli]
-published: false
+published: true
 ---
 
 ## 0. はじめに
@@ -14,7 +14,7 @@ AzureでLinux VMをデプロイする必要に迫られ、以下2つの課題に
 - デプロイしたいVMのskuを調べる
 - **`Azureのブート診断の有効化をTerraformだけで完結したい`**
 
-本記事では後者の課題に対してどういうアプローチを取ったか？書いていきます。前者の課題に対してどう取り組んだか？については、[[Azure]TerraformでLinux VMをデプロイするイメージのバージョンをjqでイイカンジに調べる方法](https://zenn.dev/gkz/articles/azure-provider-terraform-jq)をご参照ください。
+本記事では後者の課題に対してどういうアプローチを取ったか？書いていきます。前者の課題については、[[Azure]TerraformでLinux VMをデプロイするイメージのバージョンをjqでイイカンジに調べる方法](https://zenn.dev/gkz/articles/azure-provider-terraform-jq)にどうやって取り組んだか？書いたので、ぜひご参照ください。
 
 
 ![](https://storage.googleapis.com/zenn-user-upload/7471e17e1d706c920d0534bb.png)
