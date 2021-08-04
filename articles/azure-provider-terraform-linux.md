@@ -160,7 +160,7 @@ $
 :::
 
 
-#### "azurerm_linux_virtual_machine"リソースでenabled=trueとすることができないか調べたこと
+## 4. "azurerm_linux_virtual_machine"リソースでenabled=trueとすることができないか調べたこと
 
 - [Azure のブート診断 - Azure Virtual Machines | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/virtual-machines/boot-diagnostics#enable-managed-boot-diagnostics-using-azure-resource-manager-arm-templates) によると、ARMでは使われている
   - ※手元で未検証
@@ -180,10 +180,10 @@ $
     >
     > ・storage_uri - (Required) The Storage Account's Blob Endpoint which should hold the virtual machine's diagnostic files.
 
-## 4. TerraformだけでAzureのブート診断を有効化できないからどうしたか
+## 5. TerraformだけでAzureのブート診断を有効化できないからどうしたか
 TerraformとGUIの合わせ技でブート診断を有効化としました。Terraformでストレージアカウントを作成し、GUIでブート診断を有効化とするようなかんじです。
 
-### 4-1.Terraformでストレージアカウントを作成
+### 5-1.Terraformでストレージアカウントを作成
 
 - "azurerm_linux_virtual_machine"リソースのboot_diagnosticsから、enabled = "true"を削除
 - "azurerm_storage_account"リソースと"random_id"リソースは上記で書いたものをそのまま使う
@@ -251,9 +251,11 @@ output "azurerm_storage_account_name" {
 :::
 
 
-### 4-2.GUIでブート診断を有効化
+### 5-2.GUIでブート診断を有効化
 
 - terraform apply後、出力される「ストレージアカウント」を確認するでデプロイしたVMの画面左のタブを下にスクロールして、「診断設定」をクリック
+
+![](https://storage.googleapis.com/zenn-user-upload/0334a68171f0a9215d42e247.png)
 
 - 「ストレージアカウントを選択します」の下のタブから"azurerm_storage_account"のnameを選択
   - **`prefixが"diag"となっているはず！`**
@@ -263,7 +265,7 @@ output "azurerm_storage_account_name" {
 
 
 - しばらくすると以下のような画面に切り替わるので「ブート診断を表示する」をクリック
-
+  - 画面右上のポップアップにて、ブート診断が有効となったと通知が届く
 ![](https://storage.googleapis.com/zenn-user-upload/915b86bc824c2102b2885430.png)
 
 - 以下のようにVMのスクリーンショット(画面左)とログ(画面右)が表示され、ブート診断が有効となっていることが確認できる
@@ -271,8 +273,8 @@ output "azurerm_storage_account_name" {
 ![](https://storage.googleapis.com/zenn-user-upload/7471e17e1d706c920d0534bb.png)
 
 
-## 5. 今後の展望
-現時点ではブート診断の設定がTerraformだけで完結することは難しいようですが、ドキュメントが先行している？ことから、Terraformだけでブート診断の有効化ができる日はそう遠くないのかもしれません。
+## 6. 今後の展望
+現時点ではブート診断の設定がTerraformだけで完結することは難しいようですが、ドキュメントが先行している？ことから、Terraformだけでブート診断の有効化ができる日はそう遠くはないのかもしれません。
 
 もっといいブート診断の有効化の設定方法があればコメントなどで教えていただけるとうれしいです。
 
