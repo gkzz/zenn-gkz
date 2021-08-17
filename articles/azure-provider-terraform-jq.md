@@ -1,5 +1,5 @@
 ---
-title: "[Azure]TerraformでLinux VMをデプロイするイメージのバージョンをjqでイイカンジに調べる方法"
+title: "[Azure]TerraformでデプロイするLinux VMイメージの情報をjqでイイカンジに調べる方法"
 emoji: "🐷"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [azure,terraform,cli]
@@ -9,23 +9,15 @@ published: true
 ## 0. はじめに
 こんにちは。都内でエンジニアをしている、[@gkzvoice](https://twitter.com/gkzvoice)です。
 
-AzureでLinux VMをデプロイする必要に迫られたので、先日書いた記事と以下のAzureのドキュメントを頼りにtfファイルの作成を進めたのですが、**`デプロイするイメージのバージョン（sku）を探すこと`** に苦戦しました。
+AzureでLinux VMをデプロイする必要に迫られたので、先日書いた記事と以下のAzureのドキュメントを頼りにtfファイルの作成を進めたのですが、**`デプロイするイメージの情報、とりわけskuとversionを調べること`** に苦戦しました。
 
 - [[Azure]TerraformでWindows Virtual Machineでデプロイするまでにおこなったこと](https://zenn.dev/gkz/articles/azure-provider-terraform)
 - [Terraform を使用して Azure で Linux VM とインフラストラクチャを構成する | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/developer/terraform/create-linux-virtual-machine-with-infrastructure)
 
-そもそも論として、ここで言っているskuってなに？sku以外にも必要な情報ってないの？あと、その調べ方は？と疑問に思っている方もいらっしゃることでしょう。
-そこで、本記事では問題点として以下の3つを掲げ、またその自分なりの解決策、あるいは考えを書いていきます。
 
-※ なお、AzureでTerraformを使ってLinux VMをデプロイするサンプルコードは、本記事の最後に掲載しています。
+そこで、VMをデプロイするイメージの情報について調べて分かったことから、skuとversionを始めとする、デプロイするVMのイメージの情報の調べ方まで書いていきます。
 
-## 1. 本記事における問題点の共有
-
-- TerraformでLinux VMをデプロイするにあたって必要な情報は何か？
-- TerraformでLinux VMをデプロイするにあたって必要な情報はどうやって調べることができるのか？
-- デプロイしたいVMのskuをイイカンジに調べるにはどうすればよいか？
-
-## 2. 環境/バージョン情報
+## 1. 環境/バージョン情報
 
 ```
 - ローカル
@@ -36,14 +28,20 @@ AzureでLinux VMをデプロイする必要に迫られたので、先日書い�
 
 デプロイするディスクなど他のスペックの情報はここでは重要ではないので割愛します。
 
-## 3. [問題点1]TerraformでLinux VMをデプロイするにあたって必要な情報は何か？
+## 2. TerraformでVMをデプロイするにあたって必要な情報
 
-TerraformでLinux VMをデプロイするにあたって必要な情報は、以下の **`source_image_reference`** で書いている4点です。
+ VMをデプロイするにあたって必要な情報は、以下の4点です。
 
-- publisher
-- offer
-- sku
-- version
+| 属性(Attribute)|説明 |
+|---------------|-----|
+|publisher      |イメージを作成した組織です。 例: Canonical、MicrosoftWindowsServer|
+|offer          |発行元によって作成された関連するイメージのグループ名です。 例: UbuntuServer、WindowsServer|
+|sku            |ディストリビューションのメジャー リリースなど、プランのインスタンス。 例: 18.04-LTS、2019-Datacenter|
+|version        |イメージの SKU のバージョン番号。|
+
+参考：[CLI を使用してマーケットプレース購入プランの情報を検索および使用する - Azure Virtual Machines | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/virtual-machines/linux/cli-ps-findimage)
+
+VMをデプロイする際に使うTerraformでは、**`"azurerm_linux_virtual_machine"リソースのsource_image_referenceブロック`** で以下のように書かれています。
 
 :::details main.tf（抜粋）
 ```
@@ -68,7 +66,7 @@ resource "azurerm_linux_virtual_machine" "main" {
 ```
 :::
 
-## 4. [問題点2]TerraformでLinux VMをデプロイするにあたって必要な情報はどうやって調べることができるのか？
+## 3. デプロイするVMのイメージの情報の調べ方
 
 上記publisher, offer, sku, versionで指定できる値は、az vm image listコマンドで確認することが出来ます。
 
@@ -89,7 +87,7 @@ WindowsServer                 MicrosoftWindowsServer  2019-Datacenter     Micros
 $ 
 ```
 
-terrafformで指定しなければならないpublisher, offer, sku, versionのうち、offerとpublisherはそれぞれ決まりましたね。
+デプロイするVMのイメージの情報であるpublisher, offer, sku, versionのうち、offerとpublisherはそれぞれ決まりましたね。
 
 ```
   source_image_reference {
@@ -116,9 +114,11 @@ You are viewing an offline list of images, use --all to retrieve an up-to-date l
   }
 ]
 ```
+
+**`You are viewing an offline list of images, use --all to retrieve an up-to-date list`** と **`--all`** オプションを使うと最新のイメージの情報リストが取得できるみたいなので使ってみましょう。
+
 :::message alert
-**`--all`** を使わないと **`18.04-LTS`** 以外のskuは出力されないみたいですね。
-**`--all`** を使うといくつのVMの情報がなんと778個も返ってきてしまいます、、。
+**`--all`** を使うとVMの情報がなんと778個も返ってきてしまいます、、。
 
 ```
 $ az vm image list -l eastus -p Canonical -f UbuntuServer --all | \
@@ -140,22 +140,10 @@ $
 :::
 
 これは困りましたね。。
-今回はskuで **`az vm image list`** の情報を絞り込みながら、指定しなければならないversionを調べることとしましょう。
 
-## 5.[問題点3]skuを頼りにデプロイしたいVMの情報をイイカンジに調べるにはどうすればよいか？
+## 4. az vm image listコマンドの実行結果を絞り込みながらskuとversionの情報を調べる方法
 
-さて、具体的には以下3点でskuを頼りにVMの情報を絞り込んでいきます。
-
-- “LTS”を含むsku
-- skuを降順としてソート（[18|20]を含む？）
-- 最大10件を出力
-
-![](https://storage.googleapis.com/zenn-user-upload/e8ae038760876681dc4a3974.png)
-
-
-## 6. jqでskuを頼りにデプロイしたいVMの情報をイイカンジに調べる
-
-結論としては以下のようにjqを使います。
+結論としては以下のようにaz vm image listコマンドの結果をパイプでjqに渡します。
 
 ```
 $ az vm image list -l eastus -p Canonical -f UbuntuServer --all | \
@@ -173,7 +161,19 @@ $ az vm image list -l eastus -p Canonical -f UbuntuServer --all | \
 $
 ```
 
-### 6-1. 今回使ったjqの解説
+## 5. skuとversionの情報を調べる方針
+
+- “LTS”を含むsku
+- skuを降順としてソート（[18|20]を含む？）
+- 最大10件を出力
+
+![](https://storage.googleapis.com/zenn-user-upload/e8ae038760876681dc4a3974.png)
+
+調べたいskuとversionのうち、skuに対して"LTS"で検索し、かつversionで降順にソートすることで、最新のversionを選定するという方針でいくことにしました。
+
+改めて「4. az vm image listコマンドの実行結果を絞り込みながらskuとversionの情報を調べる方法」で貼ったjqの実行結果を見ていただきたいのですが、skuは"18.04-LTS"が並んでいる一方で、versionは"18.04"の後にタイムスタンプが続いており、ユニークです。そこでskuで検索してから、versionでソートするという方針でskuとversionを選定していくこととしました。
+
+## 6. 今回使ったjqの解説
 
 #### sort_by(.sku) | reverse
 - skuを降順でソート
