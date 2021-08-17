@@ -9,17 +9,16 @@ published: true
 ## 0. はじめに
 こんにちは。都内でエンジニアをしている、[@gkzvoice](https://twitter.com/gkzvoice)です。
 
-AzureでLinux VMをデプロイする必要に迫られ、Azureのドキュメントを読み漁っていたところ、「ブート診断」なるものを知りました。後述しますが、このブート診断はかゆいところに手が届くサービスだと感じたので、terraformでブート診断の設定を試みることにしました。
+AzureでLinux VMをデプロイする必要に迫られ、Azureのドキュメントを読み漁っていたところ、「ブート診断」なるものを知りました。後述しますが、このブート診断はかゆいところに手が届くサービスだと感じたので、Terraformでブート診断の設定を試みることにしました。
 
 ## 1.本記事における問題意識の共有
-表題のとおり、terraformだけでブート診断の設定をおこなうことはできませんでした。
-そこで、本記事にterraformだけでブート診断を設定するためにおこなったこと、引いたエラー、そして今できる打ち手を書き残しておくこととします。
+しかし、表題のとおり、Terraformだけでブート診断の設定をおこなうことはできませんでした。そこで、本記事にTerraformだけでブート診断を設定するためにおこなったこと、引いたエラー、そして今できる打ち手を書き残しておくこととします。
 
 ※ 本記事では、Terraformについては必要以上にフォーカスしません。Terraformの基本的な使い方については、手前味噌ですが、以下の記事をご参照ください。
 
 [[Azure]TerraformでWindows Virtual Machineでデプロイするまでにおこなったこと](https://zenn.dev/gkz/articles/azure-provider-terraform)
 
-## 1. 「Azureのブート診断」を使うとできること
+## 2. 「Azureのブート診断」を使うとできること
 Azureのドキュメントでは、以下のような説明がされています。
 
 > ブート診断は、VM ブート エラーの診断を可能にする、Azure の仮想マシン (VM) のデバッグ機能です。 ブート診断を使用すると、ユーザーは、シリアル ログ情報とスクリーンショットを収集して、起動中の VM の状態を確認できます。
@@ -34,13 +33,13 @@ Azureのドキュメントでは、以下のような説明がされています
 
 ![](https://storage.googleapis.com/zenn-user-upload/7471e17e1d706c920d0534bb.png)
 
-### 1-1.ユースケース（予想）
+### 2-1.ユースケース（予想）
 
 実務で使ったことがなく、個人の検証環境で使ってみたという前提での予想ですが、以下のようなユースケースは考えられるのではないでしょうか？
 
 - **`起動しているはずだけどVMにリモートアクセスできない`** といった際にデバッグし、原因の究明に役立てる
 
-### 1-2.VMのログイン画面のスクリーンショットとデプロイするまでのログの格納場所
+### 2-2.VMのログイン画面のスクリーンショットとデプロイするまでのログの格納場所
 VMのログイン画面のスクリーンショットとデプロイするまでのログの格納場所は、Azure Storage アカウントです。
 
 なお、IaaSやオンプレミスでVMをデプロイする際にも聞く「ディスク」はAzure Storage アカウントとは別物です。「ディスク」は以下の画像でいう[「管理ディスク」](https://docs.microsoft.com/ja-jp/azure/virtual-machines/managed-disks-overview)にあたります。
@@ -49,7 +48,7 @@ VMのログイン画面のスクリーンショットとデプロイするまで
 
 画像の出所: [Azure での Windows VM の実行 - Azure Reference Architectures | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/architecture/reference-architectures/n-tier/windows-vm) （赤い枠は筆者が編集）
 
-## 2. 環境情報
+## 3. 環境情報
 
 ```
 - ローカル（Terraform実行環境）
@@ -62,7 +61,7 @@ VMのログイン画面のスクリーンショットとデプロイするまで
    - Standard F2
 ```
 
-## 3. TerraformだけでAzureのブート診断を有効化するためにtfファイルに書いたこと
+## 4. TerraformだけでAzureのブート診断を有効化するためにtfファイルに書いたこと
 
 - 以下を参考にtfファイルを作成
   - [Configure a Linux VM with infrastructure in Azure using Terraform | Microsoft Docs](https://docs.microsoft.com/en-us/azure/developer/terraform/create-linux-virtual-machine-with-infrastructure) 
@@ -141,7 +140,7 @@ resource "azurerm_linux_virtual_machine" "main" {
 
 それでは、tfファイルが書けているか確認するためにterraform planしてみましょう。
 
-## 3. terraform planしてみると、、、
+## 5. terraform planしてみると、、、
 
 エラーとなってしまいました。以下のエラーメッセージを読むと原因は
 "azurerm_linux_virtual_machine"リソースのboot_diagnosticsブロックで、**`enabled = "true"`** と書いてしまったことと考えてよさそうです。
@@ -183,7 +182,7 @@ resource "azurerm_linux_virtual_machine" "main" {
 ```
 
 
-## 4. "azurerm_linux_virtual_machine"リソースでenabled=trueとすることができないか調べたこと
+## 6. "azurerm_linux_virtual_machine"リソースでenabled=trueとすることができないか調べたこと
 
 - Azureのドキュメントによると、Azure Resource Manager (ARM) テンプレートでは使うことができるみたい
   - ※ 手元で未検証
@@ -215,10 +214,10 @@ resource "azurerm_linux_virtual_machine" "main" {
 
 :::
 
-## 5. TerraformだけでAzureのブート診断を有効化できないからどうしたか
+## 7. TerraformだけでAzureのブート診断を有効化できないからどうしたか
 TerraformとGUIの合わせ技でブート診断を有効化としました。Terraformでストレージアカウントを作成し、GUIでブート診断を有効化とするようなかんじです。
 
-### 5-1.Terraformでストレージアカウントを作成
+### 7-1.Terraformでストレージアカウントを作成
 
 - "azurerm_linux_virtual_machine"リソースのboot_diagnosticsブロックから、enabled = "true"を削除
 - "azurerm_storage_account"リソースと"random_id"リソースは上記で書いたものをそのまま使う
@@ -286,7 +285,7 @@ output "azurerm_storage_account_name" {
 :::
 
 
-### 5-2.GUIでブート診断を有効化
+### 7-2.GUIでブート診断を有効化
 
 - terraform apply後、出力される「ストレージアカウント」を確認するでデプロイしたVMの画面左のタブを下にスクロールして、「診断設定」をクリック
 
@@ -308,7 +307,7 @@ output "azurerm_storage_account_name" {
 ![](https://storage.googleapis.com/zenn-user-upload/7471e17e1d706c920d0534bb.png)
 
 
-## 6. 今後の展望
+## 8. 今後の展望
 現時点ではブート診断の設定がTerraformだけで完結することは難しいようですが、ドキュメントが先行している？ことから、Terraformだけでブート診断の有効化ができる日はそう遠くはないのかもしれません。
 
 もっといいブート診断の有効化の設定方法があればコメントなどで教えていただけるとうれしいです。
