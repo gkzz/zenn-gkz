@@ -99,8 +99,8 @@ foo:
 
 ## 6. yamlからkeyを指定してvalueを取得
 ### 6-1. キホン
-- **`[必須]`** keyの直前に **`.(コロン)`** をつけること
-  - コロンを付けないとcompile errorになる
+- **`[必須]`** keyの直前に **`.(ピリオド)`** をつけること
+  - ピリオドを付けないとcompile errorになる
 ```
 (38) $ yq 'bar' input00.yml 
 jq: error: bar/0 is not defined at <top-level>, line 1:
@@ -126,7 +126,7 @@ dummy
 ```
 
 ### 6-2. 2重dictの場合
-- keyとkeyの間にコロンを挟む
+- keyとkeyの間にピリオドを挟む
 ```
 (38) $ yq -r '.foo' input01.yml 
 {
