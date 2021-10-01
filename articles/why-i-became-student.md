@@ -75,6 +75,15 @@ https://twitter.com/gkzvoice/status/1349561300192354304
 - [社会人大学生1年目を終えて、大学生活と勉強法とその困難 - the world as code](https://chroju.dev/blog/adult_university_learner_first_year)
 
 
+---
+#### 2021/10/01更新
+
+授業の感想については別記事にしました。公開時点ではまだ4月編入学から半年ほどしか立っていないです。その点だけご注意ください。
+
+[帝京大学理工学部(通信教育課程)の社会人大学生1年目をふりかえる | blog.gkzz.dev](https://blog.gkzz.dev/posts/sophomore-voice/)
+
+---
+
 ## 6. 最後に抱負
 抱負は、働きながら学ぶことを鑑みて、「3年間学ぶことを3年以上」かけてでも卒業に向けて淡々とやることとします。
 
