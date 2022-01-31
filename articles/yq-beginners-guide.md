@@ -893,6 +893,13 @@ $ docker run --rm -v "$PWD:$PWD" -w="$PWD" \
 
 --- 2021/04/03更新はここまで。---
 
+--- 2022/01/31更新 ---
+
+docker runコマンドをGithub Actions上で使ってみたのでブログにしました。
+[[addnab/docker-run-action]Github Actionsでyqのコンテナイメージを使ってマニフェストを更新する | gkzz.dev](https://gkzz.dev/posts/update-manifest-with-yq-github-actions/)
+
+--- 2021/01/31更新はここまで。---
+
 yqコマンド(jq wrapper for YAML)使い方備忘録は以上です。
 最後に、本記事を書くにあたって参考にした記事をご紹介します。
 
@@ -902,6 +909,7 @@ yqコマンド(jq wrapper for YAML)使い方備忘録は以上です。
 - [jqで特定の値を書き換える - notebook](https://swfz.hatenablog.com/entry/2019/04/21/234818)
 - [linuxserver/yq](https://hub.docker.com/r/linuxserver/yq)
 - [[Gitlab RunnerとArgo CD使用]GitOpsスタイルなCI/CDパイプラインを構築したのでふりかえる](https://zenn.dev/gkz/articles/cicd-argocd-runner)
+- [[addnab/docker-run-action]Github Actionsでyqのコンテナイメージを使ってマニフェストを更新する | gkzz.dev](https://gkzz.dev/posts/update-manifest-with-yq-github-actions/)
 
 ## P.S. Twitterもやってるのでフォローしていただけると泣いて喜びます:)
 [@gkzvoice](https://twitter.com/gkzvoice)
